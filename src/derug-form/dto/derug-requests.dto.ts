@@ -1,4 +1,4 @@
-import { IsArray, IsDate, IsString } from 'class-validator';
+import { IsArray, IsDate, IsNumber, IsString } from 'class-validator';
 
 export class DerugRequestDto {
   @IsString()
@@ -14,4 +14,13 @@ export class DerugRequestDto {
   userRequests: UserDerugRequestDto[];
 }
 
-export class UserDerugRequestDto {}
+export class UserDerugRequestDto {
+  @IsNumber()
+  nftsNumber: number;
+
+  @IsString()
+  userPubkey: string;
+
+  @IsDate()
+  dateStored: Date;
+}
