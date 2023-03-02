@@ -1,7 +1,7 @@
-import { AbstractRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from 'typeorm';
 import { Collection } from '../entity/collection.entity';
 import { CollectionRepository } from './collection.reposity';
-
+@EntityRepository()
 export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository

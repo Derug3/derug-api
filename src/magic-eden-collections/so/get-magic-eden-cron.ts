@@ -1,6 +1,6 @@
 import { Collection } from '../entity/collection.entity';
 import { CollectionRepository } from '../repository/collection.reposity';
-import fetch from 'node-fetch';
+
 import {
   COLLECTIONS,
   LIMIT,

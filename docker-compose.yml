@@ -1,0 +1,51 @@
+version: '3'
+services:
+  derug-db:
+    image: postgres:14.2-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DBBB: ${POSTGRES_DB}
+    ports:
+      - '5432:5432'
+    networks:
+      - derug-network
+    volumes:
+      - pg:/var/lib/postgresql/data
+  derug-api:
+    build: ./
+    container_name: derug-api
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - derug-network
+    depends_on:
+      - derug-db
+  pgadmin:
+    image: dpage/pgadmin4:4.30
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@develop.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '3400:80'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - derug-network
+    depends_on:
+      - derug-db
+    
+networks:
+  derug-network:
+    driver: bridge
+
+volumes:
+  pg:
+    driver: local
+  pgadmin:
+    driver: local

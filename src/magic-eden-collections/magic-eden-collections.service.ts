@@ -14,7 +14,7 @@ export class MagicEdenCollectionsService {
       collectionRepository,
     );
   }
-  @Cron('0 0 * * *')
+  @Cron('* * * * *')
   getMagicEdenFlaggedCollections() {
     this.getMagicEdenCron.execute();
   }

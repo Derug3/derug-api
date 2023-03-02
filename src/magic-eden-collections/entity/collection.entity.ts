@@ -20,7 +20,7 @@ export class Collection {
   @Column()
   website: string;
 
-  @Column({ array: true })
+  @Column({ type: 'simple-array' })
   categories: string[];
 
   @Column()
