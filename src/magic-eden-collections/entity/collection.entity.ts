@@ -5,22 +5,22 @@ export class Collection {
   @PrimaryColumn()
   symbol: string;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   twitter: string;
 
-  @Column()
+  @Column({ nullable: true })
   discord: string;
 
-  @Column()
+  @Column({ nullable: true })
   website: string;
 
-  @Column({ type: 'simple-array' })
+  @Column({ type: 'simple-array', nullable: true })
   categories: string[];
 
   @Column()

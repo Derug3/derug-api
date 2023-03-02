@@ -25,24 +25,31 @@ export class GetMagicEdenCron {
           )
         ).json()) as any;
         const flaggedCollections = await filterResponse(response, this.logger);
-        this.collectionRepo.saveCollectionBatch(flaggedCollections);
+        if (flaggedCollections && flaggedCollections.length > 0) {
+          this.collectionRepo.saveCollectionBatch(flaggedCollections);
+        }
         this.logger.debug(
           `Saved batch of ${flaggedCollections.length} flagged NFTs`,
         );
-        offset += flaggedCollections.length;
+
+        offset += response.length;
       } catch (error) {
         this.logger.error(
-          'Failed to fetch batch of elements from ME api' + error.message,
+          'Failed to fetch batch of elements from ME api' + error,
         );
       }
-    } while (response || response.length > 0);
+    } while (response && response.length > 0);
+    this.logger.log('Finished fetching rugged collections');
   }
 }
 
 async function filterResponse(response: Collection[], logger: Logger) {
   try {
-    const flaggedCollections = response.filter((c) => !!c.isFlagged);
-    return flaggedCollections;
+    if (response.filter) {
+      const flaggedCollections = response.filter((c) => !!c.isFlagged);
+      return flaggedCollections;
+    }
+    return [];
   } catch (error) {
     logger.error('Failed to save records to database:' + error.message);
   }

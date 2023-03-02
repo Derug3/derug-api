@@ -4,8 +4,10 @@ import { MagicEdenCollectionsController } from './magic-eden-collections.control
 import { CollectionRepository } from './repository/collection.reposity';
 import { PgRepository } from './repository/pg.repository';
 import { Connection } from 'typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
+  imports: [ScheduleModule.forRoot()],
   controllers: [MagicEdenCollectionsController],
   providers: [
     MagicEdenCollectionsService,
