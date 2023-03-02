@@ -41,7 +41,7 @@ export class GetMagicEdenCron {
 
 async function filterResponse(response: Collection[], logger: Logger) {
   try {
-    const flaggedCollections = response.filter((c) => c.isFlagged);
+    const flaggedCollections = response.filter((c) => !!c.isFlagged);
     return flaggedCollections;
   } catch (error) {
     logger.error('Failed to save records to database:' + error.message);
