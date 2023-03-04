@@ -6,6 +6,21 @@ export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository
 {
+  getByName(name: string): Promise<Collection[]> {
+    return this.repository
+      .createQueryBuilder('collectionsByName')
+      .select('collection')
+      .where('collection.name=%name%', { name })
+      .orWhere('collection.slug=%name%', { name })
+      .getMany();
+  }
+  getRandomCollections(): Promise<Collection[]> {
+    return this.createQueryBuilder('randomCollections')
+      .select()
+      .orderBy('RANDOM()')
+      .limit(50)
+      .getMany();
+  }
   saveCollectionBatch(collections: Collection[]): void {
     this.repository.save(collections);
   }

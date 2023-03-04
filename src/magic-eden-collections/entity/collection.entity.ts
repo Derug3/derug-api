@@ -5,6 +5,9 @@ export class Collection {
   @PrimaryColumn()
   symbol: string;
 
+  @Column()
+  image: string;
+
   @Column({ nullable: true })
   name: string;
 
