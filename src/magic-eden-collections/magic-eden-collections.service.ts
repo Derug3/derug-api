@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { CollectionRepository } from './repository/collection.reposity';
 import { GetByName } from './so/get-by-name';
 import { GetFlaggedCollections } from './so/get-flagged-collections';
+import { GetListedNfts } from './so/get-listed-nfts';
 import { GetMagicEdenCron } from './so/get-magic-eden-cron';
 import { GetRandomCollections } from './so/get-random-collections';
 
@@ -12,6 +13,7 @@ export class MagicEdenCollectionsService {
   private readonly getFlaggedCollections: GetFlaggedCollections;
   private readonly getRandomCollections: GetRandomCollections;
   private readonly getByName: GetByName;
+  private readonly getListedNfts: GetListedNfts;
   constructor(private readonly collectionRepository: CollectionRepository) {
     this.getMagicEdenCron = new GetMagicEdenCron(collectionRepository);
     this.getFlaggedCollections = new GetFlaggedCollections(
@@ -19,6 +21,7 @@ export class MagicEdenCollectionsService {
     );
     this.getRandomCollections = new GetRandomCollections(collectionRepository);
     this.getByName = new GetByName(collectionRepository);
+    this.getListedNfts = new GetListedNfts();
   }
   @Cron('0 0 * * *')
   getMagicEdenFlaggedCollections() {
@@ -35,5 +38,9 @@ export class MagicEdenCollectionsService {
 
   getCollectionByName(name: string) {
     return this.getByName.execute(name);
+  }
+
+  getLitedNfts(symbol: string) {
+    return this.getListedNfts.execute(symbol);
   }
 }

@@ -20,4 +20,9 @@ export class MagicEdenCollectionsController {
   getByName(@Param('name') name: string) {
     return this.magicEdenCollectionsService.getCollectionByName(name);
   }
+
+  @Get('/symbol/:symbol')
+  getListedNfts(@Param('symbol') symbol: string) {
+    return this.magicEdenCollectionsService.getLitedNfts(symbol);
+  }
 }
