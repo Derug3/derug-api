@@ -8,10 +8,14 @@ export class PgRepository
 {
   getByName(name: string): Promise<Collection[]> {
     return this.repository
-      .createQueryBuilder('collectionsByName')
-      .select('collection')
-      .where('collection.name=%name%', { name })
-      .orWhere('collection.slug=%name%', { name })
+      .createQueryBuilder('collection')
+      .select()
+      .where('collection.name like :name', {
+        name: `${name.toLocaleLowerCase()}%`,
+      })
+      .orWhere('collection.symbol like :name', {
+        name: `${name.toLocaleLowerCase()}%`,
+      })
       .getMany();
   }
   getRandomCollections(): Promise<Collection[]> {
