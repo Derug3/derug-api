@@ -5,6 +5,8 @@ import { CollectionRepository } from './repository/collection.reposity';
 import { PgRepository } from './repository/pg.repository';
 import { Connection } from 'typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CollectionActivitiesRepository } from './repository/activities/activities.repository';
+import { PgRepositoryActivities } from './repository/activities/pg.repository';
 
 @Module({
   imports: [ScheduleModule.forRoot()],
@@ -14,6 +16,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     {
       provide: CollectionRepository,
       useFactory: (conn: Connection) => conn.getCustomRepository(PgRepository),
+      inject: [Connection],
+    },
+    {
+      provide: CollectionActivitiesRepository,
+      useFactory: (conn: Connection) =>
+        conn.getCustomRepository(PgRepositoryActivities),
       inject: [Connection],
     },
   ],

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { CollectionActivities } from './collection-activities.entity';
 
 @Entity()
 export class Collection {
@@ -28,4 +29,7 @@ export class Collection {
 
   @Column()
   isFlagged: boolean;
+
+  @OneToMany(() => CollectionActivities, (activities) => activities.collection)
+  activities: CollectionActivities[];
 }

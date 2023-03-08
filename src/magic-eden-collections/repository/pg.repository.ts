@@ -1,4 +1,5 @@
 import { AbstractRepository, EntityRepository } from 'typeorm';
+import { CollectionActivities } from '../entity/collection-activities.entity';
 import { Collection } from '../entity/collection.entity';
 import { CollectionRepository } from './collection.reposity';
 @EntityRepository(Collection)
@@ -6,6 +7,16 @@ export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository
 {
+  async getAllCollections(): Promise<Collection[]> {
+    return await this.repository.find({ select: ['symbol'] });
+  }
+  getActivities(slug: string): Promise<Collection> {
+    return this.createQueryBuilder('collection')
+      .select('collection.slug')
+      .where('collection.slug:=slug', { slug })
+      .leftJoin('collection,activities', 'activities')
+      .getOne();
+  }
   getByName(name: string): Promise<Collection[]> {
     return this.repository
       .createQueryBuilder('collection')
