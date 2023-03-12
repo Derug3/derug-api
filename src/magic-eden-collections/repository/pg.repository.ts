@@ -7,6 +7,9 @@ export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository
 {
+  getBySlug(slug: string): Promise<Collection> {
+    return this.repository.findOne({ where: { symbol: slug } });
+  }
   async getAllCollections(): Promise<Collection[]> {
     return await this.repository.find({ select: ['symbol'] });
   }

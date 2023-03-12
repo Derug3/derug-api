@@ -8,4 +8,5 @@ export abstract class CollectionRepository {
   abstract getByName(name: string): Promise<Collection[]>;
   abstract getActivities(slug: string): Promise<Collection>;
   abstract getAllCollections(): Promise<Collection[]>;
+  abstract getBySlug(slug: string): Promise<Collection>;
 }
