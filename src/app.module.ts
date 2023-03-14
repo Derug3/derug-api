@@ -5,6 +5,7 @@ import { typeormConfig } from 'typeorm.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MagicEdenCollectionsModule } from './magic-eden-collections/magic-eden-collections.module';
+import { TensorModule } from './tensor/tensor.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MagicEdenCollectionsModule } from './magic-eden-collections/magic-eden-
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     MagicEdenCollectionsModule,
+    TensorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
