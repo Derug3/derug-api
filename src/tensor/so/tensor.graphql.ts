@@ -40,9 +40,9 @@ export const getListings = async (slug: string) => {
 export const recentActivities = async (slug: string) => {
   const data = (await graphQLClient.request(RECENT_ACTIVITIES_QUERY, {
     slug,
-    filters: null,
     filter: {
       txType: 'LIST',
+      price: 'positive',
     },
     limit: 100,
   })) as any;
@@ -77,9 +77,11 @@ export const fetchWhileHasActivities = async (
       },
     });
 
-    nextCursor = response.recentTransactions.page.endCursor.txKey;
-    txAt = response.recentTransactions.page.endCursor.txAt;
-    firstBatch = [...firstBatch, ...mapRecentActivities(response.data)];
+    if (response) {
+      nextCursor = response.recentTransactions.page.endCursor.txKey;
+      txAt = response.recentTransactions.page.endCursor.txAt;
+      firstBatch = [...firstBatch, ...mapRecentActivities(response)];
+    }
   } while (response && response.recentTransactions.page.hasMore);
 
   return firstBatch.reverse();
