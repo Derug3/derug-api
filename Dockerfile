@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Build the application.
-RUN npm run build
+RUN nest build
 
 # Uninstall the dependencies not required to run the built application.
 RUN npm prune --production
