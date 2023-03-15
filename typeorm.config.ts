@@ -10,6 +10,7 @@ export function typeormConfig(): TypeOrmModuleOptions {
     port: parseInt(process.env.POSTGRES_PORT || '5432'),
     database: process.env.DB_NAME,
     entities: [join(__dirname, '/**/*.entity{.ts,.js}')],
+    ssl: true,
     synchronize: true,
     autoLoadEntities: true,
   };
