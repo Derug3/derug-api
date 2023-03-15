@@ -8,7 +8,7 @@ export function typeormConfig(): TypeOrmModuleOptions {
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     port: parseInt(process.env.POSTGRES_PORT || '5432'),
-    database: process.env.DB_NAME,
+    database: process.env.POSTGRES_NAME,
     entities: [join(__dirname, '/**/*.entity{.ts,.js}')],
     ssl: true,
     synchronize: true,
