@@ -9,6 +9,5 @@ EXPOSE 3000
 COPY . .
 
 RUN npm install
-RUN nest build
 
 CMD ["npm","run","start:dev"]
