@@ -9,10 +9,12 @@ export const TRAITS_QUERY = `
       __typename
     }
   }
+
   fragment ReducedCollectionTraitsRarities on CollectionTraitsRarities {
     traitMeta
     traitActive
     numMints
+    rarityAlgos
     __typename
   }
 `;

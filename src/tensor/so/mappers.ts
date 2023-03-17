@@ -64,6 +64,7 @@ export const mapCollectionStats = (data: any): ICollectionStats | undefined => {
       fp: dataInfo.statsOverall.floorPrice,
       volume24H: dataInfo.statsOverall.floor24h,
       royalty: dataInfo.sellRoyaltyFeeBPS / 100,
+      slug: dataInfo.id,
     };
 };
 

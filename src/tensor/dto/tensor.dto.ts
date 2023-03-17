@@ -64,6 +64,7 @@ export interface ICollectionStats {
   numMints: number;
   royalty: number;
   firstListed: number;
+  slug: string;
 }
 
 export interface INftListing {

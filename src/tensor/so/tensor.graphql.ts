@@ -47,7 +47,11 @@ export const recentActivities = async (slug: string) => {
     limit: 100,
   })) as any;
 
+  if (data.recentTransactions.txs.length === 0) {
+    return [];
+  }
   const recentActivities = mapRecentActivities(data);
+
   const remainingActivities = await fetchWhileHasActivities(
     recentActivities,
     data.recentTransactions.page.endCursor.txKey,
