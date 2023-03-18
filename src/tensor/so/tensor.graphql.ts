@@ -17,7 +17,9 @@ import {
 export const getFloorPrice = async (slug: string) => {
   const data = (await graphQLClient.request(FP_QUERY, { slug })) as any;
 
-  return mapCollectionStats(data);
+  const mapped = mapCollectionStats(data);
+
+  return mapped;
 };
 
 export const getTraits = async (slug: string) => {

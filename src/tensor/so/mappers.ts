@@ -58,10 +58,10 @@ export const mapCollectionStats = (data: any): ICollectionStats | undefined => {
   if (dataInfo)
     return {
       firstListed: dataInfo.firstListDate,
-      marketCap: dataInfo.statsOverall.marketCap,
+      marketCap: +dataInfo.statsOverall.marketCap,
       numListed: dataInfo.statsOverall.numListed,
       numMints: dataInfo.statsOverall.numMints,
-      fp: dataInfo.statsOverall.floorPrice,
+      fp: +dataInfo.statsOverall.floorPrice,
       volume24H: dataInfo.statsOverall.floor24h,
       royalty: dataInfo.sellRoyaltyFeeBPS / 100,
       slug: dataInfo.id,

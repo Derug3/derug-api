@@ -20,17 +20,19 @@ export class PgRepository
       .leftJoin('collection,activities', 'activities')
       .getOne();
   }
-  getByName(name: string): Promise<Collection[]> {
-    return this.repository
+  async getByName(name: string): Promise<Collection[]> {
+    const resp = await this.repository
       .createQueryBuilder('collection')
       .select()
-      .where('collection.name like :name', {
-        name: `${name.toLocaleLowerCase()}%`,
+      .where('LOWER(collection.name) like :name', {
+        name: `%${name}%`,
       })
-      .orWhere('collection.symbol like :name', {
-        name: `${name.toLocaleLowerCase()}%`,
+      .orWhere('LOWER(collection.symbol) like :name', {
+        name: `${name}%`,
       })
       .getMany();
+
+    return resp;
   }
   getRandomCollections(): Promise<Collection[]> {
     return this.createQueryBuilder('randomCollections')

@@ -1,6 +1,6 @@
 version: '3'
 services:
-  derug-dbbbb:
+  derug-db:
     image: postgres:14.2-alpine
     container_name: postgres
     environment:
