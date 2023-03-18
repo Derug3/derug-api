@@ -1,12 +1,12 @@
 version: '3'
 services:
-  derug-db:
+  derug-dbbbb:
     image: postgres:14.2-alpine
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DBBB: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
     networks:
@@ -24,7 +24,7 @@ services:
     networks:
       - derug-network
     depends_on:
-      - derug-db
+      -  derug-dbbbb
   pgadmin:
     image: dpage/pgadmin4:4.30
     container_name: pgadmin
