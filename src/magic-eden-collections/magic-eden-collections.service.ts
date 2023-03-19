@@ -30,7 +30,7 @@ export class MagicEdenCollectionsService {
     this.getListings = new GetListings(activitiesRepo, collectionRepository);
     this.getBySlug = new GetSingleCollection(collectionRepository);
   }
-  @Cron('* * * * *')
+  @Cron('0 0 * * *')
   getMagicEdenFlaggedCollections() {
     this.getMagicEdenCron.execute();
   }
