@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MagicEdenCollectionsModule } from './magic-eden-collections/magic-eden-collections.module';
 import { TensorModule } from './tensor/tensor.module';
+import { PublicRemintModule } from './public-remint/public-remint.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TensorModule } from './tensor/tensor.module';
     ConfigModule.forRoot({ isGlobal: true }),
     MagicEdenCollectionsModule,
     TensorModule,
+    PublicRemintModule,
   ],
   controllers: [AppController],
   providers: [AppService],

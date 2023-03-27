@@ -24,7 +24,7 @@ services:
     networks:
       - derug-network
     depends_on:
-      -  derug-dbbbb
+      -  derug-db
   pgadmin:
     image: dpage/pgadmin4:4.30
     container_name: pgadmin

@@ -1,6 +1,8 @@
 import { decode } from '@project-serum/anchor/dist/cjs/utils/bytes/hex';
 import { PublicKey } from '@solana/web3.js';
 import nacl from 'tweetnacl';
+import { Metaplex, createCandyMachineV2Builder } from '@metaplex-foundation/js';
+import { RPC_CONNECTION } from './solana/utilities';
 
 export function checkIfMessageIsSigned(
   signedMessage: string | undefined,
@@ -25,3 +27,5 @@ export function checkIfMessageIsSigned(
     return false;
   }
 }
+
+export const mpx = new Metaplex(RPC_CONNECTION);
