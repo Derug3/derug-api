@@ -13,8 +13,8 @@ export class PgPublicRemint
   storeAllCollectionNfts(nfts: PublicRemint[]): Promise<PublicRemint[]> {
     return this.repository.save(nfts);
   }
-  getNonMintedNfts(creator: string): Promise<PublicRemint[]> {
-    return this.repository.find({ where: { hasReminted: false, creator } });
+  getNonMintedNfts(derugData: string): Promise<PublicRemint[]> {
+    return this.repository.find({ where: { hasReminted: false, derugData } });
   }
   updateRemintedNft(nftMint: PublicRemint): Promise<PublicRemint> {
     return this.repository.save(nftMint);

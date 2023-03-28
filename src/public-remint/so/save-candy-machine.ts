@@ -8,9 +8,9 @@ export class SaveCandyMachine {
   async execute(candyMachineDto: CandyMachineDto) {
     try {
       const candyMachineData = new CandyMachineData();
-      const { candyMachine, candyMachineSecretKey, derugData } =
+      const { candyMachineKey, candyMachineSecretKey, derugData } =
         candyMachineDto;
-      candyMachineData.candyMachineKey = candyMachine;
+      candyMachineData.candyMachineKey = candyMachineKey;
       candyMachineData.candyMachineSecretKey = candyMachineSecretKey;
       candyMachineData.derugData = derugData;
       await this.candyMachineRepo.storeCandyMachineData(candyMachineData);

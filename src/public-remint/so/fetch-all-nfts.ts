@@ -9,15 +9,15 @@ import { PublicRemintRepository } from '../repository/public-remint.repository';
 export class FetchAllNftsFromCollection {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}
 
-  async execute(firstCreator: string) {
+  async execute(updateAuthority: string, derugData: string) {
     try {
-      const allNfts = await mpx.nfts().findAllByCreator({
-        creator: new PublicKey(firstCreator),
+      const allNfts = await mpx.nfts().findAllByUpdateAuthority({
+        updateAuthority: new PublicKey(updateAuthority),
       });
 
       const remintData: PublicRemint[] = [];
       for (const nft of allNfts) {
-        remintData.push(this.mapNftToRemintData(nft));
+        remintData.push(this.mapNftToRemintData(nft, derugData));
       }
 
       await this.publicRemintRepo.storeAllCollectionNfts(remintData);
@@ -30,7 +30,10 @@ export class FetchAllNftsFromCollection {
     }
   }
 
-  mapNftToRemintData(nft: Metadata<JsonMetadata<string>> | Nft | Sft) {
+  mapNftToRemintData(
+    nft: Metadata<JsonMetadata<string>> | Nft | Sft,
+    derugData: string,
+  ) {
     const remintData = new PublicRemint();
 
     remintData.dateReminted = null;
@@ -40,6 +43,7 @@ export class FetchAllNftsFromCollection {
     remintData.remintAuthority = null;
     remintData.uri = nft.uri;
     remintData.creator = nft.creators[0].address.toString();
+    remintData.derugData = derugData;
 
     return remintData;
   }

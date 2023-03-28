@@ -6,6 +6,9 @@ export class PublicRemint {
   nftMetadata: string;
 
   @Column()
+  derugData: string;
+
+  @Column()
   hasReminted: boolean;
 
   @Column({ nullable: true })

@@ -7,14 +7,20 @@ import { PublicRemintService } from './public-remint.service';
 export class PublicRemintController {
   constructor(private readonly publicRemintService: PublicRemintService) {}
 
-  @Get('collection/:firstCreator')
-  saveCollection(@Param('firstCreator') firstCreator: string) {
-    return this.publicRemintService.fetchAllNftsFromCollection(firstCreator);
+  @Get('collection/:updateAuthority/:derugData')
+  saveCollection(
+    @Param('updateAuthority') updateAuthority: string,
+    derugData: string,
+  ) {
+    return this.publicRemintService.fetchAllNftsFromCollection(
+      updateAuthority,
+      derugData,
+    );
   }
 
-  @Get('collection/non-minted/:firstCreator')
-  getNonMinted(@Param('firstCreator') firstCreator: string) {
-    return this.publicRemintService.getNonMintedNfts(firstCreator);
+  @Get('collection/non-minted/:derugData')
+  getNonMinted(@Param('derugData') derugData: string) {
+    return this.publicRemintService.getNonMintedNfts(derugData);
   }
 
   @Get('/:derugData')

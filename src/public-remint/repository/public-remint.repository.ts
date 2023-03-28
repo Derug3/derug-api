@@ -4,7 +4,7 @@ export abstract class PublicRemintRepository {
   abstract storeAllCollectionNfts(
     nfts: PublicRemint[],
   ): Promise<PublicRemint[]>;
-  abstract getNonMintedNfts(creator: string): Promise<PublicRemint[]>;
+  abstract getNonMintedNfts(derugData: string): Promise<PublicRemint[]>;
   abstract updateRemintedNft(nft: PublicRemint): Promise<PublicRemint>;
   abstract getByMetadata(metadata: string): Promise<PublicRemint>;
 }

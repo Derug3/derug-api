@@ -5,7 +5,7 @@ export class CandyMachineDto {
   derugData: string;
 
   @IsString()
-  candyMachine: string;
+  candyMachineKey: string;
 
   @IsString()
   candyMachineSecretKey: string;

@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { derugProgram } from 'src/utilities/utils';
 import { CandyMachineDto } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
+import { PublicRemint } from './entity/public-remint.entity';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
 import { PublicRemintRepository } from './repository/public-remint.repository';
 import { FetchAllNftsFromCollection } from './so/fetch-all-nfts';
@@ -8,15 +10,17 @@ import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
 import { InitCandyMachine } from './so/init-candy-machine';
 import { SaveCandyMachine } from './so/save-candy-machine';
+import { UpdateMintedNft } from './so/update-minted-nft';
 import { UpdateReminted } from './so/update-reminted';
 
 @Injectable()
-export class PublicRemintService {
+export class PublicRemintService implements OnModuleInit {
   private fetchAllNfts: FetchAllNftsFromCollection;
   private updateReminted: UpdateReminted;
   private getNonMinted: GetNonMinted;
   private saveCandyMachine: SaveCandyMachine;
   private getCandyMachine: GetCandyMachineData;
+  private updateMintedNft: UpdateMintedNft;
   constructor(
     private readonly publicRemintRepo: PublicRemintRepository,
     private readonly candyMachineRepo: CandyMachineRepository,
@@ -26,14 +30,20 @@ export class PublicRemintService {
     this.getNonMinted = new GetNonMinted(publicRemintRepo);
     this.saveCandyMachine = new SaveCandyMachine(candyMachineRepo);
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
+    this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
+  }
+  async onModuleInit() {
+    derugProgram.addEventListener('nftRemintedEvent', async (data) => {
+      await this.updateMintedNft.execute(data);
+    });
   }
 
-  fetchAllNftsFromCollection(firstCreator: string) {
-    return this.fetchAllNfts.execute(firstCreator);
+  fetchAllNftsFromCollection(updateAuthority: string, derugData: string) {
+    return this.fetchAllNfts.execute(updateAuthority, derugData);
   }
 
-  getNonMintedNfts(firstCreator: string) {
-    return this.getNonMinted.execute(firstCreator);
+  getNonMintedNfts(derugData: string) {
+    return this.getNonMinted.execute(derugData);
   }
 
   updateRemintedNft(metadata: string, wallet: string) {
