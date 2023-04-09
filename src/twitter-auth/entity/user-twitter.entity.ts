@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-
+import { Exclude } from 'class-transformer';
 @Entity()
 export class UserTwitterData {
   @PrimaryColumn()
@@ -23,6 +23,7 @@ export class UserTwitterData {
   @Column()
   verified: boolean;
 
+  @Exclude()
   @Column()
   accessToken: string;
 }

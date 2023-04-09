@@ -17,14 +17,13 @@ export class TwitterAuthController {
   constructor(private readonly twitterAuthService: TwitterAuthService) {}
 
   @Get('/redirect')
-  redirectedUser(
+  async redirectedUser(
     @Res() res: Response,
     @Query('code') code: string,
     @Query('state') state: string,
-    @Req() request: Request,
   ) {
     const splittedData = state.split('!');
-    this.twitterAuthService.fetchUserTwitterData(code, splittedData[1]);
+    await this.twitterAuthService.fetchUserTwitterData(code, splittedData[1]);
     res.redirect(
       `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${splittedData[0]}&${DERUG}=true`,
     );

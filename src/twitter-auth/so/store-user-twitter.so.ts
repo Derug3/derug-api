@@ -44,6 +44,9 @@ export class StoreUserTwitter {
           token.token.access_token,
         ),
       );
+      this.logger.debug(
+        `User ${data.data.name} with twitter username ${data.data.username}`,
+      );
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException('Failed to store user twitter data');
