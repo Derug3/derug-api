@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { oauthConfig } from 'src/utilities/utils';
-import Client from 'twitter-api-sdk';
+import { oauthConfig, twitterApi } from 'src/utilities/utils';
+import Client, { auth } from 'twitter-api-sdk';
+import { AuthClient } from 'twitter-api-sdk/dist/types';
 import TwitterApi from 'twitter-api-v2';
+import { UserTwitterRepository } from './repositry/user-twitter.repository';
+import { StoreUserTwitter } from './so/store-user-twitter.so';
 
 @Injectable()
 export class TwitterAuthService {
+  private storeTwitterData: StoreUserTwitter;
+
+  constructor(private readonly userTwitterRepo: UserTwitterRepository) {
+    this.storeTwitterData = new StoreUserTwitter(userTwitterRepo);
+  }
+
   async authUser(collectionSlug: string) {
     return oauthConfig.generateAuthURL({
       state: collectionSlug,
@@ -12,14 +21,15 @@ export class TwitterAuthService {
     });
   }
 
-  async fetchUserTwitterData(code: string) {
-    try {
-      const data = await oauthConfig.requestAccessToken(code);
-      const client = new Client(data.token.access_token);
-      const clientData = await client.users.findMyUser();
-      console.log(clientData);
-    } catch (error) {
-      console.log(error);
-    }
+  async fetchUserTwitterData(code: string, pubkey: string) {
+    return await this.storeTwitterData.execute(code, pubkey);
+  }
+
+  getUserTwitterByPubkey(pubkey: string) {
+    return this.userTwitterRepo.getUserTwitterData(pubkey);
+  }
+
+  unlinkUserTwitter(pubkey: string) {
+    return this.userTwitterRepo.unlinkTwitter(pubkey);
   }
 }

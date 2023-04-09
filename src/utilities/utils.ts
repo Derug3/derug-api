@@ -8,6 +8,7 @@ import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { DerugProgram, IDL } from '../solana/derug_program';
 import Client, { auth } from 'twitter-api-sdk';
 import { REDIRECT, TWITTER_AUTH } from './constants';
+import TwitterApi from 'twitter-api-v2';
 dotenv.config();
 export function checkIfMessageIsSigned(
   signedMessage: string | undefined,
@@ -51,9 +52,18 @@ const cliendId = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET_ID!;
 const appEndpoint = process.env.BASE_ENDPOINT!;
 
+export const twitterApi = new TwitterApi({
+  clientId: cliendId,
+  clientSecret: clientSecret,
+});
+
 export const oauthConfig = new auth.OAuth2User({
   client_id: cliendId,
   client_secret: clientSecret,
   callback: `${appEndpoint}${TWITTER_AUTH}${REDIRECT}`,
-  scopes: ['users.read'],
+  scopes: ['users.read', 'tweet.read'],
 });
+
+export const twitterClient = new Client(
+  'AAAAAAAAAAAAAAAAAAAAAO4fmAEAAAAAt%2B%2F8X08iFLb76DhZ6c3KFYxK3K0%3DZ6qq7NdyvS53c2X5iPCWwRzI6hrsjjIiwtBlBVslYjDgy7X6VT',
+);

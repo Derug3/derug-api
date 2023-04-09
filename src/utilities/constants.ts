@@ -9,3 +9,7 @@ export const DERUG = 'derug';
 export const TWITTER_AUTH = '/twitter-auth';
 export const REDIRECT = '/redirect';
 export const SYMBOL = 'symbol';
+export const USERS = 'users';
+export const ME = '/me';
+
+export const TWITTER_API = 'https://api.twitter.com/2/';

@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { TwitterAuthService } from './twitter-auth.service';
 import { Request, Response } from 'express';
 import { frontEndpoint } from 'src/utilities/utils';
@@ -13,10 +21,12 @@ export class TwitterAuthController {
     @Res() res: Response,
     @Query('code') code: string,
     @Query('state') state: string,
+    @Req() request: Request,
   ) {
-    this.twitterAuthService.fetchUserTwitterData(code);
+    const splittedData = state.split('!');
+    this.twitterAuthService.fetchUserTwitterData(code, splittedData[1]);
     res.redirect(
-      `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${state}&${DERUG}=true`,
+      `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${splittedData[0]}&${DERUG}=true`,
     );
   }
 
@@ -24,5 +34,15 @@ export class TwitterAuthController {
   async makeOauth2Request(@Param('collectionSlug') collectionSlug: string) {
     const data = await this.twitterAuthService.authUser(collectionSlug);
     return { url: data };
+  }
+
+  @Get('pubkey/:pubkey')
+  getUserTwitterDataByPubkey(@Param('pubkey') pubkey: string) {
+    return this.twitterAuthService.getUserTwitterByPubkey(pubkey);
+  }
+
+  @Delete('pubkey/:pubkey')
+  deleteUserTwitterData(pubkey: string) {
+    return this.twitterAuthService.unlinkUserTwitter(pubkey);
   }
 }
