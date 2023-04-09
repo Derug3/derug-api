@@ -6,6 +6,8 @@ import { RPC_CONNECTION } from './solana/utilities';
 import * as dotenv from 'dotenv';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { DerugProgram, IDL } from '../solana/derug_program';
+import Client, { auth } from 'twitter-api-sdk';
+import { REDIRECT, TWITTER_AUTH } from './constants';
 dotenv.config();
 export function checkIfMessageIsSigned(
   signedMessage: string | undefined,
@@ -35,6 +37,8 @@ export const mpx = new Metaplex(RPC_CONNECTION);
 
 const PROGRAM_ID = process.env.SOLANA_PROGRAM as string;
 
+export const frontEndpoint = process.env.FRONT_ENDPOINT as string;
+
 export const derugProgram = new Program<DerugProgram>(
   IDL,
   new PublicKey(PROGRAM_ID),
@@ -42,3 +46,14 @@ export const derugProgram = new Program<DerugProgram>(
     commitment: 'confirmed',
   }),
 );
+
+const cliendId = process.env.CLIENT_ID!;
+const clientSecret = process.env.CLIENT_SECRET_ID!;
+const appEndpoint = process.env.BASE_ENDPOINT!;
+
+export const oauthConfig = new auth.OAuth2User({
+  client_id: cliendId,
+  client_secret: clientSecret,
+  callback: `${appEndpoint}${TWITTER_AUTH}${REDIRECT}`,
+  scopes: ['users.read'],
+});

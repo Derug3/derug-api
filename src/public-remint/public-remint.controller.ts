@@ -10,15 +10,17 @@ export class PublicRemintController {
   @Get('collection/:updateAuthority/:derugData')
   saveCollection(
     @Param('updateAuthority') updateAuthority: string,
-    derugData: string,
+    @Param('derugData') derugData: string,
   ) {
+    console.log(derugData, 'DDATA');
+
     return this.publicRemintService.fetchAllNftsFromCollection(
       updateAuthority,
       derugData,
     );
   }
 
-  @Get('collection/non-minted/:derugData')
+  @Get('non-minted/:derugData')
   getNonMinted(@Param('derugData') derugData: string) {
     return this.publicRemintService.getNonMintedNfts(derugData);
   }

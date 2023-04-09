@@ -1,6 +1,6 @@
 import { JsonMetadata, Metadata, Nft, Sft } from '@metaplex-foundation/js';
 import {} from '@metaplex-foundation/mpl-token-metadata';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
 import { mpx } from 'src/utilities/utils';
 import { PublicRemint } from '../entity/public-remint.entity';
@@ -8,6 +8,8 @@ import { PublicRemintRepository } from '../repository/public-remint.repository';
 
 export class FetchAllNftsFromCollection {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}
+
+  private logger = new Logger(FetchAllNftsFromCollection.name);
 
   async execute(updateAuthority: string, derugData: string) {
     try {
@@ -19,7 +21,7 @@ export class FetchAllNftsFromCollection {
       for (const nft of allNfts) {
         remintData.push(this.mapNftToRemintData(nft, derugData));
       }
-
+      this.logger.debug(`Stored data for Derug Data:${derugData}`);
       await this.publicRemintRepo.storeAllCollectionNfts(remintData);
     } catch (error) {
       console.log(error);

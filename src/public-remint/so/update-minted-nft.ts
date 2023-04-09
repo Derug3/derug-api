@@ -6,8 +6,10 @@ export class UpdateMintedNft {
   private logger = new Logger(UpdateMintedNft.name);
   async execute(data: any) {
     try {
+      console.log(data);
+
       const nonMinted = await this.publicMintRepo.getByMetadata(
-        data.oldMetadata,
+        data.oldNftMetadata,
       );
       if (!nonMinted) {
         this.logger.error('NFT that has been minted does not exist in DB!');

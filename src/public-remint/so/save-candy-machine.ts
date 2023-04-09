@@ -14,6 +14,7 @@ export class SaveCandyMachine {
       candyMachineData.candyMachineSecretKey = candyMachineSecretKey;
       candyMachineData.derugData = derugData;
       await this.candyMachineRepo.storeCandyMachineData(candyMachineData);
+      return { message: 'Data Saved' };
     } catch (error) {
       throw new BadRequestException(
         'Failed to store candy machine data:',

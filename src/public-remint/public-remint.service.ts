@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { derugProgram } from 'src/utilities/utils';
 import { CandyMachineDto } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
@@ -32,8 +32,13 @@ export class PublicRemintService implements OnModuleInit {
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
   }
+  private readonly logger = new Logger(PublicRemintService.name);
   async onModuleInit() {
-    derugProgram.addEventListener('nftRemintedEvent', async (data) => {
+    this.logger.debug(
+      `Subscribed to event listener ${derugProgram.programId.toString()}`,
+    );
+    derugProgram.addEventListener('NftRemintedEvent', async (data) => {
+      this.logger.debug(`Minted NFT:${data}`);
       await this.updateMintedNft.execute(data);
     });
   }
