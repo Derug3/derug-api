@@ -4,6 +4,8 @@
 /test
 .env
 
+.env
+
 # Logs
 logs
 *.log
