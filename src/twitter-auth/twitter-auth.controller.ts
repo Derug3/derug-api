@@ -24,14 +24,21 @@ export class TwitterAuthController {
   ) {
     const splittedData = state.split('!');
     await this.twitterAuthService.fetchUserTwitterData(code, splittedData[1]);
-    res.redirect(
-      `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${splittedData[0]}&${DERUG}=true`,
-    );
+    if (splittedData[0] !== '') {
+      res.redirect(
+        `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${splittedData[0]}&${DERUG}=true`,
+      );
+    } else {
+      res.redirect(frontEndpoint);
+    }
   }
 
   @Get('/:collectionSlug')
   async makeOauth2Request(@Param('collectionSlug') collectionSlug: string) {
     const data = await this.twitterAuthService.authUser(collectionSlug);
+
+    console.log(data);
+
     return { url: data };
   }
 
@@ -41,7 +48,7 @@ export class TwitterAuthController {
   }
 
   @Delete('pubkey/:pubkey')
-  deleteUserTwitterData(pubkey: string) {
+  deleteUserTwitterData(@Param('pubkey') pubkey: string) {
     return this.twitterAuthService.unlinkUserTwitter(pubkey);
   }
 }

@@ -38,8 +38,10 @@ export class PublicRemintService implements OnModuleInit {
       `Subscribed to event listener ${derugProgram.programId.toString()}`,
     );
     derugProgram.addEventListener('NftRemintedEvent', async (data) => {
-      this.logger.debug(`Minted NFT:${data}`);
-      await this.updateMintedNft.execute(data);
+      try {
+        await this.updateMintedNft.execute(data);
+        this.logger.debug(`Minted NFT:${data.oldNftMetadata.toString()}`);
+      } catch (error) {}
     });
   }
 
