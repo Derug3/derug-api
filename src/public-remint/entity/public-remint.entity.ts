@@ -25,4 +25,13 @@ export class PublicRemint {
 
   @Column()
   creator: string;
+
+  @Column()
+  newName: string;
+
+  @Column()
+  newSymbol: string;
+
+  @Column()
+  newUri: string;
 }

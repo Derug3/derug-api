@@ -1,7 +1,11 @@
 import { decode } from '@project-serum/anchor/dist/cjs/utils/bytes/hex';
 import { Keypair, PublicKey } from '@solana/web3.js';
 import nacl from 'tweetnacl';
-import { Metaplex, createCandyMachineV2Builder } from '@metaplex-foundation/js';
+import {
+  Metaplex,
+  createCandyMachineV2Builder,
+  bundlrStorage,
+} from '@metaplex-foundation/js';
 import { RPC_CONNECTION } from './solana/utilities';
 import * as dotenv from 'dotenv';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
@@ -34,9 +38,23 @@ export function checkIfMessageIsSigned(
   }
 }
 
-export const mpx = new Metaplex(RPC_CONNECTION);
+//TODO:Fix this before mainnet
+export const mpx = new Metaplex(RPC_CONNECTION).use(
+  bundlrStorage({
+    address: 'https://devnet.bundlr.network',
+    providerUrl: 'https://api.devnet.solana.com',
+    timeout: 60000,
+  }),
+);
 
 const PROGRAM_ID = process.env.SOLANA_PROGRAM as string;
+
+const METADATA_UPLOADER_KEYPAIR = process.env
+  .METADATA_UPLOADER_KEYPAIR as string;
+
+export const metadataUploader = Keypair.fromSecretKey(
+  new Uint8Array(JSON.parse(METADATA_UPLOADER_KEYPAIR)),
+);
 
 export const frontEndpoint = process.env.FRONT_ENDPOINT as string;
 

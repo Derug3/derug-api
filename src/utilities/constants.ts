@@ -13,3 +13,7 @@ export const USERS = 'users';
 export const ME = '/me';
 
 export const TWITTER_API = 'https://api.twitter.com/2/';
+
+export const UPLOAD_METADATA_FEE = 0.00004539;
+
+export const remintConfigSeed = Buffer.from('remint-config');
