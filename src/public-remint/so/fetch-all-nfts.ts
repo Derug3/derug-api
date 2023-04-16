@@ -67,35 +67,41 @@ export class FetchAllNftsFromCollection {
         throw new BadRequestException('Given derug request is not winning!');
       }
 
-      const remintData: PublicRemint[] = [];
-      for (const nft of allNfts) {
-        const nftData = await this.parseJsonMetadata(
-          derugRequest.newName,
-          derugRequest.newSymbol,
-          derugRequest.sellerFeeBps,
-          derugRequest.creators.map((c) => {
-            return {
-              address: c.address.toBase58(),
-              share: c.share,
-            };
-          }),
+      const existingMetadata = await this.publicRemintRepo.getNonMintedNfts(
+        derugData,
+      );
 
-          nft,
-        );
-        if (nftData && nftData.name && nftData.uri) {
-          remintData.push(
-            this.mapNftToRemintData(
-              nft,
-              derugData,
-              nftData.name,
-              derugRequest.newSymbol,
-              nftData.uri,
-            ),
+      if (existingMetadata.length === 0) {
+        const remintData: PublicRemint[] = [];
+        for (const nft of allNfts) {
+          const nftData = await this.parseJsonMetadata(
+            derugRequest.newName,
+            derugRequest.newSymbol,
+            derugRequest.sellerFeeBps,
+            derugRequest.creators.map((c) => {
+              return {
+                address: c.address.toBase58(),
+                share: c.share,
+              };
+            }),
+
+            nft,
           );
+          if (nftData && nftData.name && nftData.uri) {
+            remintData.push(
+              this.mapNftToRemintData(
+                nft,
+                derugData,
+                nftData.name,
+                derugRequest.newSymbol,
+                nftData.uri,
+              ),
+            );
+          }
         }
+        await this.publicRemintRepo.storeAllCollectionNfts(remintData);
       }
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
-      await this.publicRemintRepo.storeAllCollectionNfts(remintData);
       await this.initPrivateMint(
         new PublicKey(derugData),
         new PublicKey(derugRequest),
