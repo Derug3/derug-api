@@ -101,10 +101,11 @@ export class FetchAllNftsFromCollection {
         }
         await this.publicRemintRepo.storeAllCollectionNfts(remintData);
       }
+
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
       await this.initPrivateMint(
         new PublicKey(derugData),
-        new PublicKey(derugRequest),
+        new PublicKey(txData.derugRequest),
       );
     } catch (error) {
       console.log(error);

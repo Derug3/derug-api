@@ -10,6 +10,7 @@ export class GetPrivateMintNftData {
       if (!nftData) {
         throw new NotFoundException('Invalid old nft metadata.');
       }
+      return nftData;
     } catch (error) {
       throw error;
     }
