@@ -1,5 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { CandyMachineDto } from './dto/candy-machine.dto';
+import {
+  CandyMachineDto,
+  GetNftsByUpdateAuthority,
+} from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { PublicRemintService } from './public-remint.service';
 
@@ -7,17 +10,11 @@ import { PublicRemintService } from './public-remint.service';
 export class PublicRemintController {
   constructor(private readonly publicRemintService: PublicRemintService) {}
 
-  @Get('collection/:updateAuthority/:derugData')
-  saveCollection(
-    @Param('updateAuthority') updateAuthority: string,
-    @Param('derugData') derugData: string,
-  ) {
-    console.log(derugData, 'DDATA');
+  @Post('collection')
+  saveCollection(@Body() tx: GetNftsByUpdateAuthority) {
+    console.log('Started fetching all NFTs');
 
-    return this.publicRemintService.fetchAllNftsFromCollection(
-      updateAuthority,
-      derugData,
-    );
+    return this.publicRemintService.fetchAllNftsFromCollection(tx);
   }
 
   @Get('non-minted/:derugData')
@@ -33,5 +30,10 @@ export class PublicRemintController {
   @Post('/save')
   saveCandyMachine(@Body() candyMachine: CandyMachineDto) {
     return this.publicRemintService.storeCandyMachineData(candyMachine);
+  }
+
+  @Get('/metadata/:oldMetadata')
+  getPrivateMintMetadta(@Param('oldMetadata') oldMetadata: string) {
+    return this.publicRemintService.getNftData(oldMetadata);
   }
 }

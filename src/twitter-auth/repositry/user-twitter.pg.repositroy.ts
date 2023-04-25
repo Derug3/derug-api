@@ -13,7 +13,8 @@ export class PgUserTwitterRepository
   getUserTwitterData(pubkey: string): Promise<UserTwitterData> {
     return this.repository.findOne({ where: { pubkey } });
   }
-  unlinkTwitter(pubkey: string): Promise<DeleteResult> {
-    return this.repository.delete(pubkey);
+  async unlinkTwitter(pubkey: string): Promise<DeleteResult> {
+    const user = await this.repository.findOne({ where: { pubkey } });
+    return this.repository.delete(user);
   }
 }

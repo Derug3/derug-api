@@ -8,6 +8,7 @@ import { GetMagicEdenCron } from './so/get-magic-eden-cron';
 import { GetRandomCollections } from './so/get-random-collections';
 import { GetListings } from './so/get-collection-listings';
 import { GetSingleCollection } from './so/get-single-collection';
+import { GetAllCollections } from './so/get-all-collections';
 
 @Injectable()
 export class MagicEdenCollectionsService {
@@ -16,19 +17,16 @@ export class MagicEdenCollectionsService {
   private readonly getRandomCollections: GetRandomCollections;
   private readonly getByName: GetByName;
   private readonly getBySlug: GetSingleCollection;
-  private readonly getListings: GetListings;
-  constructor(
-    private readonly collectionRepository: CollectionRepository,
-    private readonly activitiesRepo: CollectionActivitiesRepository,
-  ) {
+  private readonly getAllCollections: GetAllCollections;
+  constructor(private readonly collectionRepository: CollectionRepository) {
     this.getMagicEdenCron = new GetMagicEdenCron(collectionRepository);
     this.getFlaggedCollections = new GetFlaggedCollections(
       collectionRepository,
     );
     this.getRandomCollections = new GetRandomCollections(collectionRepository);
     this.getByName = new GetByName(collectionRepository);
-    this.getListings = new GetListings(activitiesRepo, collectionRepository);
     this.getBySlug = new GetSingleCollection(collectionRepository);
+    this.getAllCollections = new GetAllCollections(collectionRepository);
   }
   @Cron('0 0 * * *')
   getMagicEdenFlaggedCollections() {
@@ -47,10 +45,11 @@ export class MagicEdenCollectionsService {
     return this.getByName.execute(name);
   }
 
-  getListedNfts(symbol: string) {
-    this.getListings.execute(symbol);
-  }
   getSingleCollection(slug: string) {
     return this.getBySlug.execute(slug);
+  }
+
+  getAllCollectionsSlugs() {
+    return this.getAllCollections.execute();
   }
 }

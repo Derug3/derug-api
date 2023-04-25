@@ -10,3 +10,14 @@ export class CandyMachineDto {
   @IsString()
   candyMachineSecretKey: string;
 }
+
+export class GetNftsByUpdateAuthority {
+  @IsString()
+  updateAuthority: string;
+
+  @IsString()
+  derugData: string;
+
+  @IsString()
+  derugRequest: string;
+}

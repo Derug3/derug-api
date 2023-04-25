@@ -6,19 +6,19 @@ export class UpdateMintedNft {
   private logger = new Logger(UpdateMintedNft.name);
   async execute(data: any) {
     try {
-      console.log(data);
-
       const nonMinted = await this.publicMintRepo.getByMetadata(
-        data.oldNftMetadata,
+        data.oldNftMetadata.toString(),
       );
       if (!nonMinted) {
         this.logger.error('NFT that has been minted does not exist in DB!');
         return;
       }
       nonMinted.dateReminted = new Date();
-      nonMinted.remintAuthority = data.remintAuthority.toString();
+      nonMinted.remintAuthority = data.reminter.toString();
       nonMinted.hasReminted = true;
       await this.publicMintRepo.updateRemintedNft(nonMinted);
-    } catch (error) {}
+    } catch (error) {
+      this.logger.error('Failed to store in DB:', error.message);
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { oauthConfig, twitterApi } from 'src/utilities/utils';
 import Client, { auth } from 'twitter-api-sdk';
 import { AuthClient } from 'twitter-api-sdk/dist/types';
@@ -9,6 +9,8 @@ import { StoreUserTwitter } from './so/store-user-twitter.so';
 @Injectable()
 export class TwitterAuthService {
   private storeTwitterData: StoreUserTwitter;
+
+  private logger = new Logger(TwitterAuthService.name);
 
   constructor(private readonly userTwitterRepo: UserTwitterRepository) {
     this.storeTwitterData = new StoreUserTwitter(userTwitterRepo);
@@ -30,6 +32,7 @@ export class TwitterAuthService {
   }
 
   unlinkUserTwitter(pubkey: string) {
+    this.logger.verbose(`User with pubkey ${pubkey} unlinked twitter account`);
     return this.userTwitterRepo.unlinkTwitter(pubkey);
   }
 }

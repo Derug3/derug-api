@@ -8,6 +8,7 @@ import { MagicEdenCollectionsModule } from './magic-eden-collections/magic-eden-
 import { TensorModule } from './tensor/tensor.module';
 import { PublicRemintModule } from './public-remint/public-remint.module';
 import { TwitterAuthModule } from './twitter-auth/twitter-auth.module';
+import { CollectionVolumeModule } from './collection-volume/collection-volume.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TwitterAuthModule } from './twitter-auth/twitter-auth.module';
     TensorModule,
     PublicRemintModule,
     TwitterAuthModule,
+    CollectionVolumeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
