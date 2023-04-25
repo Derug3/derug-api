@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { CollectionVolume } from 'src/collection-volume/entity/collection-volume.entity';
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 import { CollectionActivities } from './collection-activities.entity';
 
 @Entity()
@@ -32,4 +33,10 @@ export class Collection {
 
   @OneToMany(() => CollectionActivities, (activities) => activities.collection)
   activities: CollectionActivities[];
+
+  @OneToOne(
+    () => CollectionVolume,
+    (collectionVolume) => collectionVolume.collection,
+  )
+  collectionStats: CollectionVolume;
 }

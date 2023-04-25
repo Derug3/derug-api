@@ -18,12 +18,6 @@ import { PgRepositoryActivities } from './repository/activities/pg.repository';
       useFactory: (conn: Connection) => conn.getCustomRepository(PgRepository),
       inject: [Connection],
     },
-    {
-      provide: CollectionActivitiesRepository,
-      useFactory: (conn: Connection) =>
-        conn.getCustomRepository(PgRepositoryActivities),
-      inject: [Connection],
-    },
   ],
 })
 export class MagicEdenCollectionsModule {}
