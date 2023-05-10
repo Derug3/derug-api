@@ -13,6 +13,6 @@ export function typeormConfig(): TypeOrmModuleOptions {
     entities: ['dist/**/*.entity.js'],
     synchronize: true,
     autoLoadEntities: true,
-    ssl: false,
+    ssl: { rejectUnauthorized: false },
   };
 }
