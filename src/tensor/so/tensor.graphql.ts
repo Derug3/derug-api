@@ -1,5 +1,6 @@
-import { graphQLClient } from 'src/utilities/solana/utilities';
-import { ICollectionRecentActivities } from '../dto/tensor.dto';
+import { PublicKey } from '@solana/web3.js';
+import { graphQLClient, metaplex } from 'src/utilities/solana/utilities';
+import { ICollectionRecentActivities, INftListing } from '../dto/tensor.dto';
 import {
   mapCollectionListings,
   mapCollectionStats,
@@ -36,7 +37,28 @@ export const getListings = async (slug: string) => {
     limit: 100,
   })) as any;
 
-  return mapCollectionListings(data);
+  const listings = mapCollectionListings(data);
+  const nullImageListings = listings.filter((l) => l.imageUrl === null);
+  for (const nullListing of nullImageListings) {
+    try {
+      const metadata = metaplex
+        .nfts()
+        .pdas()
+        .metadata({ mint: new PublicKey(nullListing.mint) });
+      const metadataAcc = await metaplex
+        .nfts()
+        .findByMetadata({ metadata, loadJsonMetadata: true });
+      const editedData: INftListing = {
+        ...nullListing,
+        imageUrl: metadataAcc.json.image,
+      };
+      const listingIndex = listings.findIndex(
+        (l) => l.mint === nullListing.mint,
+      );
+      listings[listingIndex] = { ...editedData };
+    } catch (error) {}
+  }
+  return listings;
 };
 
 export const recentActivities = async (slug: string) => {
