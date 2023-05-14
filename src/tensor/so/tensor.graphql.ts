@@ -1,5 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { graphQLClient, metaplex } from 'src/utilities/solana/utilities';
+import {
+  graphQLClient,
+  heliusMetadataEndpoint,
+} from 'src/utilities/solana/utilities';
 import { ICollectionRecentActivities, INftListing } from '../dto/tensor.dto';
 import {
   mapCollectionListings,
@@ -39,25 +42,35 @@ export const getListings = async (slug: string) => {
 
   const listings = mapCollectionListings(data);
   const nullImageListings = listings.filter((l) => l.imageUrl === null);
-  for (const nullListing of nullImageListings) {
+
+  if (nullImageListings.length > 0) {
     try {
-      const metadata = metaplex
-        .nfts()
-        .pdas()
-        .metadata({ mint: new PublicKey(nullListing.mint) });
-      const metadataAcc = await metaplex
-        .nfts()
-        .findByMetadata({ metadata, loadJsonMetadata: true });
-      const editedData: INftListing = {
-        ...nullListing,
-        imageUrl: metadataAcc.json.image,
-      };
-      const listingIndex = listings.findIndex(
-        (l) => l.mint === nullListing.mint,
-      );
-      listings[listingIndex] = { ...editedData };
-    } catch (error) {}
+      const mintList = nullImageListings.slice(0, 100).map((n) => n.mint);
+      const heliusNfts = await (
+        await fetch(heliusMetadataEndpoint, {
+          method: 'POST',
+          body: JSON.stringify({
+            mintAccounts: mintList,
+            includeOffChain: true,
+          }),
+        })
+      ).json();
+      console.log(heliusNfts[0].offChainMetadata.metadata.image);
+
+      heliusNfts.forEach((nft) => {
+        const relatedListing = listings.findIndex(
+          (l) => l.mint === nft.account,
+        );
+        listings[relatedListing] = {
+          ...listings[relatedListing],
+          imageUrl: nft.offChainMetadata?.metadata?.image,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
+
   return listings;
 };
 

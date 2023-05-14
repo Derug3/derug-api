@@ -6,6 +6,7 @@ import { metadataUploader } from '../utils';
 const CONNECTION_URL = process.env.SOLANA_ENDPOINT as string;
 
 dotenv.config();
+//TODO:load from env
 export const RPC_CONNECTION = new Connection('https://api.devnet.solana.com');
 
 export const metaplex = new Metaplex(RPC_CONNECTION).use(
@@ -19,3 +20,5 @@ export const metaplex = new Metaplex(RPC_CONNECTION).use(
 export const graphQLClient = new GraphQLClient(
   'https://graphql.tensor.trade/graphql',
 );
+
+export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
