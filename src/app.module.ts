@@ -9,6 +9,7 @@ import { TensorModule } from './tensor/tensor.module';
 import { PublicRemintModule } from './public-remint/public-remint.module';
 import { TwitterAuthModule } from './twitter-auth/twitter-auth.module';
 import { CollectionVolumeModule } from './collection-volume/collection-volume.module';
+import { UserMintModule } from './user-mint/user-mint.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CollectionVolumeModule } from './collection-volume/collection-volume.mo
     PublicRemintModule,
     TwitterAuthModule,
     CollectionVolumeModule,
+    UserMintModule,
   ],
   controllers: [AppController],
   providers: [AppService],
