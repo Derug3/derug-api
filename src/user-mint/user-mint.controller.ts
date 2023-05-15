@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { UserMintService } from './user-mint.service';
 import { CreateUserMintDto } from './dto/create-user-mint.dto';
 
@@ -19,8 +11,14 @@ export class UserMintController {
     return this.userMintService.saveUserMint(userMint);
   }
 
-  @Get('/get')
-  getUserMints(@Body() userMint: CreateUserMintDto) {
-    return this.userMintService.getUserMints(userMint);
+  @Get('/get/:candyMachine/:userPubkey')
+  getUserMints(
+    @Param('candyMachine') candyMachine: string,
+    @Param('userPubkey') userPubkey: string,
+  ) {
+    return this.userMintService.getUserMints({
+      candyMachinePubkey: candyMachine,
+      userPubkey,
+    });
   }
 }
