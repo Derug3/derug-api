@@ -48,6 +48,8 @@ export class StoreUserTwitter {
         `User ${data.data.name} with twitter username ${data.data.username}`,
       );
     } catch (error) {
+      console.log(error);
+
       this.logger.error(error);
       throw new BadRequestException('Failed to store user twitter data');
     }

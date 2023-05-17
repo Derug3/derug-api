@@ -37,8 +37,6 @@ export class TwitterAuthController {
   async makeOauth2Request(@Param('collectionSlug') collectionSlug: string) {
     const data = await this.twitterAuthService.authUser(collectionSlug);
 
-    console.log(data);
-
     return { url: data };
   }
 

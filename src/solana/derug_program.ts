@@ -105,6 +105,12 @@ export type DerugProgram = {
           type: 'string';
         },
         {
+          name: 'walletLimit';
+          type: {
+            option: 'u8';
+          };
+        },
+        {
           name: 'creators';
           type: {
             vec: {
@@ -729,6 +735,12 @@ export type DerugProgram = {
             type: 'u32';
           },
           {
+            name: 'walletLimit';
+            type: {
+              option: 'u8';
+            };
+          },
+          {
             name: 'requestStatus';
             type: {
               defined: 'RequestStatus';
@@ -830,6 +842,12 @@ export type DerugProgram = {
               vec: {
                 defined: 'DeruggerCreator';
               };
+            };
+          },
+          {
+            name: 'walletLimit';
+            type: {
+              option: 'u8';
             };
           },
           {
@@ -1043,6 +1061,21 @@ export type DerugProgram = {
         },
       ];
     },
+    {
+      name: 'PrivateMintStarted';
+      fields: [
+        {
+          name: 'derugData';
+          type: 'publicKey';
+          index: false;
+        },
+        {
+          name: 'remintConfig';
+          type: 'publicKey';
+          index: false;
+        },
+      ];
+    },
   ];
   errors: [
     {
@@ -1248,6 +1281,12 @@ export const IDL: DerugProgram = {
         {
           name: 'newSymbol',
           type: 'string',
+        },
+        {
+          name: 'walletLimit',
+          type: {
+            option: 'u8',
+          },
         },
         {
           name: 'creators',
@@ -1874,6 +1913,12 @@ export const IDL: DerugProgram = {
             type: 'u32',
           },
           {
+            name: 'walletLimit',
+            type: {
+              option: 'u8',
+            },
+          },
+          {
             name: 'requestStatus',
             type: {
               defined: 'RequestStatus',
@@ -1975,6 +2020,12 @@ export const IDL: DerugProgram = {
               vec: {
                 defined: 'DeruggerCreator',
               },
+            },
+          },
+          {
+            name: 'walletLimit',
+            type: {
+              option: 'u8',
             },
           },
           {
@@ -2183,6 +2234,21 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'oldNftMetadata',
+          type: 'publicKey',
+          index: false,
+        },
+      ],
+    },
+    {
+      name: 'PrivateMintStarted',
+      fields: [
+        {
+          name: 'derugData',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'remintConfig',
           type: 'publicKey',
           index: false,
         },

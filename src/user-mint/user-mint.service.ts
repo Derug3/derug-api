@@ -13,10 +13,14 @@ export class UserMintService {
     );
   }
 
-  getUserMints(userMintDto: CreateUserMintDto) {
-    return this.userMintRepo.getUserMints(
+  async getUserMints(userMintDto: CreateUserMintDto) {
+    const userMints = await this.userMintRepo.getUserMints(
       userMintDto.userPubkey,
       userMintDto.candyMachinePubkey,
     );
+    if (!userMints) {
+      return [];
+    }
+    return userMints;
   }
 }
