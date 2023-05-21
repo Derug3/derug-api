@@ -239,7 +239,7 @@ export class FetchAllNftsFromCollection {
 
   async getMintList(creator: string) {
     try {
-      let response;
+      let response: any;
       let mints: string[] = [];
       do {
         response = await (
