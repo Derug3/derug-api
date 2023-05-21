@@ -251,7 +251,7 @@ export class FetchAllNftsFromCollection {
               },
               options: {
                 limit: 1000,
-                paginationToken: response.paginationToken,
+                paginationToken: response?.paginationToken,
               },
             }),
           })
