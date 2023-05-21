@@ -256,7 +256,7 @@ export class FetchAllNftsFromCollection {
             }),
           })
         ).json();
-        mints = [...mints, response.result.map((nft) => nft.mint)];
+        mints = [...mints, ...response.result.map((nft) => nft.mint)];
       } while (
         response &&
         response.paginationToken &&
