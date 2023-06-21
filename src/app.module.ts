@@ -10,6 +10,7 @@ import { PublicRemintModule } from './public-remint/public-remint.module';
 import { TwitterAuthModule } from './twitter-auth/twitter-auth.module';
 import { CollectionVolumeModule } from './collection-volume/collection-volume.module';
 import { UserMintModule } from './user-mint/user-mint.module';
+import { WalletWlModule } from './wallet_wl/wallet_wl.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserMintModule } from './user-mint/user-mint.module';
     TwitterAuthModule,
     CollectionVolumeModule,
     UserMintModule,
+    WalletWlModule,
   ],
   controllers: [AppController],
   providers: [AppService],
