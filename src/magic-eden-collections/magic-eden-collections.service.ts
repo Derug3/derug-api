@@ -29,7 +29,7 @@ export class MagicEdenCollectionsService {
     this.getAllCollections = new GetAllCollections(collectionRepository);
   }
 
-  @Cron('0 0 * * *')
+  // @Cron('0 0 * * *')
   getMagicEdenFlaggedCollections() {
     this.getMagicEdenCron.execute();
   }

@@ -27,7 +27,7 @@ export class CollectionVolumeService {
     this.getTopCollections = new GetTopVolume(collectionVolumeRepo);
   }
 
-  @Cron(CronExpression.EVERY_10_HOURS)
+  // @Cron(CronExpression.EVERY_10_HOURS)
   storeCollectionVolume() {
     this.saveCollectionVolume.execute();
   }

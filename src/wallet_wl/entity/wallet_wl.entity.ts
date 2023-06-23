@@ -7,14 +7,16 @@ export class WalletWl {
   derugAddress: string;
 
   @Column()
-  derugger: string;
-
-  @Column({ type: 'simple-array' })
-  wallets: string[];
+  wallets: string;
 
   @Column({ nullable: true })
   duration: number;
 
   @Column({ enum: WlType })
   wlType: WlType;
+}
+
+export interface WlConfig {
+  userId: string;
+  wallet: string;
 }
