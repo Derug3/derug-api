@@ -5,25 +5,31 @@ export class UserTwitterData {
   @PrimaryColumn()
   pubkey: string;
 
-  @Column()
+  @Column({ nullable: true })
   twitterName: string;
 
   @Column()
+  code?: string;
+
+  @Column()
+  codeVerifier?: string;
+
+  @Column({ nullable: true })
   twitterHandle: string;
 
-  @Column()
+  @Column({ nullable: true })
   image: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @Column({ nullable: true })
   location: string;
 
-  @Column()
+  @Column({ default: false })
   verified: boolean;
 
   @Exclude()
-  @Column()
+  @Column({ nullable: true })
   accessToken: string;
 }

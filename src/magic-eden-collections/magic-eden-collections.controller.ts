@@ -25,4 +25,9 @@ export class MagicEdenCollectionsController {
   getBySymbol(@Param('symbol') symbol: string) {
     return this.magicEdenCollectionsService.getSingleCollection(symbol);
   }
+
+  @Get('/all')
+  getAllCollections() {
+    return this.magicEdenCollectionsService.getAllCollectionsSlugs();
+  }
 }

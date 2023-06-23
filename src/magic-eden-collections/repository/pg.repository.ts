@@ -11,7 +11,7 @@ export class PgRepository
     return this.repository.findOne({ where: { symbol: slug } });
   }
   async getAllCollections(): Promise<Collection[]> {
-    return await this.repository.find({ select: ['symbol'] });
+    return await this.repository.find();
   }
   getActivities(slug: string): Promise<Collection> {
     return this.createQueryBuilder('collection')

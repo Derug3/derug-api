@@ -1,4 +1,4 @@
-import { Get, Injectable } from '@nestjs/common';
+import { Get, Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CollectionActivitiesRepository } from './repository/activities/activities.repository';
 import { CollectionRepository } from './repository/collection.reposity';
@@ -28,7 +28,8 @@ export class MagicEdenCollectionsService {
     this.getBySlug = new GetSingleCollection(collectionRepository);
     this.getAllCollections = new GetAllCollections(collectionRepository);
   }
-  @Cron('0 0 * * *')
+
+  // @Cron('0 0 * * *')
   getMagicEdenFlaggedCollections() {
     this.getMagicEdenCron.execute();
   }

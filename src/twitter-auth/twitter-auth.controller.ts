@@ -20,24 +20,16 @@ export class TwitterAuthController {
   async redirectedUser(
     @Res() res: Response,
     @Query('code') code: string,
-    @Query('state') state: string,
+    @Query('pubkey') pubkey: string,
   ) {
-    const splittedData = state.split('!');
-    await this.twitterAuthService.fetchUserTwitterData(code, splittedData[1]);
-    if (splittedData[0] !== '') {
-      res.redirect(
-        `${frontEndpoint}/${COLLECTION}?${SYMBOL}=${splittedData[0]}&${DERUG}=true`,
-      );
-    } else {
-      res.redirect(frontEndpoint);
-    }
+    await this.twitterAuthService.fetchUserTwitterData(code, pubkey);
+
+    res.redirect(frontEndpoint);
   }
 
-  @Get('/:collectionSlug')
-  async makeOauth2Request(@Param('collectionSlug') collectionSlug: string) {
-    const data = await this.twitterAuthService.authUser(collectionSlug);
-
-    console.log(data);
+  @Get('/:pubkey')
+  async makeOauth2Request(@Param('pubkey') pubkey: string) {
+    const data = await this.twitterAuthService.authUser(pubkey);
 
     return { url: data };
   }

@@ -43,7 +43,6 @@ export class SaveCollectionVolume {
           this.logger.error(error);
         }
       }
-      // await this.collectionVolumeRepo.saveCollectionVolume(collectionsVolumes);
     } catch (error) {
       this.logger.error(error);
     }

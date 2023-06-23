@@ -6,13 +6,13 @@ import {
   createCandyMachineV2Builder,
   bundlrStorage,
 } from '@metaplex-foundation/js';
+import { TwitterApi } from 'twitter-api-v2';
 import { RPC_CONNECTION } from './solana/utilities';
 import * as dotenv from 'dotenv';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { DerugProgram, IDL } from '../solana/derug_program';
 import Client, { auth } from 'twitter-api-sdk';
 import { REDIRECT, TWITTER_AUTH } from './constants';
-import TwitterApi from 'twitter-api-v2';
 dotenv.config();
 export function checkIfMessageIsSigned(
   signedMessage: string | undefined,
@@ -49,6 +49,8 @@ export const mpx = new Metaplex(RPC_CONNECTION).use(
 
 const PROGRAM_ID = process.env.SOLANA_PROGRAM as string;
 
+export const redirectUri = `${process.env.BASE_ENDPOINT}/${TWITTER_AUTH}/${REDIRECT}`;
+
 const METADATA_UPLOADER_KEYPAIR = process.env
   .METADATA_UPLOADER_KEYPAIR as string;
 
@@ -68,20 +70,8 @@ export const derugProgram = new Program<DerugProgram>(
 
 const cliendId = process.env.CLIENT_ID!;
 const clientSecret = process.env.CLIENT_SECRET_ID!;
-const appEndpoint = process.env.BASE_ENDPOINT!;
 
-export const twitterApi = new TwitterApi({
+export const v2Client = new TwitterApi({
   clientId: cliendId,
   clientSecret: clientSecret,
 });
-
-export const oauthConfig = new auth.OAuth2User({
-  client_id: cliendId,
-  client_secret: clientSecret,
-  callback: `${appEndpoint}${TWITTER_AUTH}${REDIRECT}`,
-  scopes: ['users.read', 'tweet.read'],
-});
-
-export const twitterClient = new Client(
-  'AAAAAAAAAAAAAAAAAAAAAO4fmAEAAAAAt%2B%2F8X08iFLb76DhZ6c3KFYxK3K0%3DZ6qq7NdyvS53c2X5iPCWwRzI6hrsjjIiwtBlBVslYjDgy7X6VT',
-);

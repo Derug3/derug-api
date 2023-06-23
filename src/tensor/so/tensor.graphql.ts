@@ -1,5 +1,9 @@
-import { graphQLClient } from 'src/utilities/solana/utilities';
-import { ICollectionRecentActivities } from '../dto/tensor.dto';
+import { PublicKey } from '@solana/web3.js';
+import {
+  graphQLClient,
+  heliusMetadataEndpoint,
+} from 'src/utilities/solana/utilities';
+import { ICollectionRecentActivities, INftListing } from '../dto/tensor.dto';
 import {
   mapCollectionListings,
   mapCollectionStats,
@@ -36,7 +40,38 @@ export const getListings = async (slug: string) => {
     limit: 100,
   })) as any;
 
-  return mapCollectionListings(data);
+  const listings = mapCollectionListings(data);
+  const nullImageListings = listings.filter((l) => l.imageUrl === null);
+
+  if (nullImageListings.length > 0) {
+    try {
+      const mintList = nullImageListings.slice(0, 100).map((n) => n.mint);
+      const heliusNfts = await (
+        await fetch(heliusMetadataEndpoint, {
+          method: 'POST',
+          body: JSON.stringify({
+            mintAccounts: mintList,
+            includeOffChain: true,
+          }),
+        })
+      ).json();
+      console.log(heliusNfts[0].offChainMetadata.metadata.image);
+
+      heliusNfts.forEach((nft) => {
+        const relatedListing = listings.findIndex(
+          (l) => l.mint === nft.account,
+        );
+        listings[relatedListing] = {
+          ...listings[relatedListing],
+          imageUrl: nft.offChainMetadata?.metadata?.image,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return listings;
 };
 
 export const recentActivities = async (slug: string) => {
