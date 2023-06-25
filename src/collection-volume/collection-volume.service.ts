@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { MagicEdenCollectionsService } from 'src/magic-eden-collections/magic-eden-collections.service';
 import { CollectionVolumeFilter } from './entity/collection-volume.entity';

@@ -26,7 +26,11 @@ export class GetMagicEdenCron {
         ).json()) as any;
         const flaggedCollections = await filterResponse(response, this.logger);
         if (flaggedCollections && flaggedCollections.length > 0) {
-          this.collectionRepo.saveCollectionBatch(flaggedCollections);
+          try {
+            await this.collectionRepo.saveCollectionBatch(flaggedCollections);
+          } catch (error) {
+            console.log(error);
+          }
         }
         this.logger.debug(
           `Saved batch of ${flaggedCollections.length} flagged NFTs`,

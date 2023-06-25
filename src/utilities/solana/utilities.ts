@@ -22,3 +22,5 @@ export const graphQLClient = new GraphQLClient(
 );
 
 export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
+
+export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
