@@ -59,7 +59,7 @@ export class FetchAllNftsFromCollection {
 
       let allNfts: any[] = [];
 
-      const chunkedMints = chunk(mints.slice(0, 200), 100);
+      const chunkedMints = chunk(mints, 100);
 
       for (const mintsChunk of chunkedMints) {
         const metadataList = await (
@@ -105,10 +105,6 @@ export class FetchAllNftsFromCollection {
         throw new BadRequestException('Given derug request is not winning!');
       }
 
-      const existingMetadata = await this.publicRemintRepo.getNonMintedNfts(
-        derugData,
-      );
-
       const files: ShadowFile[] = [];
       const failed: string[] = [];
 
@@ -134,7 +130,7 @@ export class FetchAllNftsFromCollection {
 
           nft,
         );
-        console.log(nftData);
+        this.logger.verbose(`Parsed metadata for ${nftData.name}`);
 
         files.push(nftData.file);
         if (nftData && nftData.name) {
@@ -149,6 +145,7 @@ export class FetchAllNftsFromCollection {
               storageUrl + nftData.name + '.json',
             ),
           ]);
+          this.logger.log(`Stored in DB data for ${nftData.name}`);
         }
       }
 
@@ -200,12 +197,11 @@ export class FetchAllNftsFromCollection {
     nft: any,
   ) {
     try {
-      this.logger.debug('Starting upload');
-
       const jsonNft = await (
         await fetch(nft.onChainMetadata?.metadata.data.uri)
       ).json();
       const newNftName = newName + ' #' + jsonNft.name?.split('#')[1];
+      this.logger.debug('Starting upload ' + newNftName);
       const data = {
         ...jsonNft,
         symbol: newSymbol,

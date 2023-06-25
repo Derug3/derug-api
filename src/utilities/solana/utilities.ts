@@ -23,8 +23,8 @@ export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
 
 //TODO:change
 export const shadowDrive = new PublicKey(
-  '3PVENJxfDQfXcPQjtipxFcHr6S9KCxAAYWYbNoagkj9p',
+  'GWU2E9FNs6RyztkE7yWumMtVg3Xdvop4T6AKdJRT5WLJ',
 );
 
 export const storageUrl =
-  'https://shdw-drive.genesysgo.net/3PVENJxfDQfXcPQjtipxFcHr6S9KCxAAYWYbNoagkj9p/';
+  'https://shdw-drive.genesysgo.net/GWU2E9FNs6RyztkE7yWumMtVg3Xdvop4T6AKdJRT5WLJ/';
