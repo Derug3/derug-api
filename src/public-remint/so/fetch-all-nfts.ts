@@ -154,10 +154,10 @@ export class FetchAllNftsFromCollection {
       }
 
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
-      await this.initPrivateMint(
-        new PublicKey(derugData),
-        new PublicKey(txData.derugRequest),
-      );
+      // await this.initPrivateMint(
+      //   new PublicKey(derugData),
+      //   new PublicKey(txData.derugRequest),
+      // );
     } catch (error) {
       console.log(error);
 
