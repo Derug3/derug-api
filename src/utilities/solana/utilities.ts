@@ -11,15 +11,7 @@ export const RPC_CONNECTION = new Connection(
   'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
 );
 
-export const metaplex = new Metaplex(RPC_CONNECTION).use(
-  bundlrStorage({
-    address:
-      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
-    providerUrl:
-      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
-    timeout: 60000,
-  }),
-);
+export const metaplex = new Metaplex(RPC_CONNECTION).use(bundlrStorage());
 
 export const graphQLClient = new GraphQLClient(
   'https://graphql.tensor.trade/graphql',

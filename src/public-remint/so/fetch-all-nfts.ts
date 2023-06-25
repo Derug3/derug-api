@@ -12,7 +12,7 @@ import {
   metaplex,
   RPC_CONNECTION,
 } from 'src/utilities/solana/utilities';
-import { derugProgram, metadataUploader, mpx } from 'src/utilities/utils';
+import { derugProgram, metadataUploader } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from '../dto/candy-machine.dto';
 import { PublicRemint } from '../entity/public-remint.entity';
 import { PublicRemintRepository } from '../repository/public-remint.repository';
@@ -52,7 +52,9 @@ export class FetchAllNftsFromCollection {
         paginationToken = parsedResponse.paginationToken;
         parsedResponse.result.forEach((mint) => mints.push(mint.mint));
       }
+
       let allNfts: any[] = [];
+      console.log(mints.length);
       const chunkedMints = chunk(mints, 100);
       for (const mintsChunk of chunkedMints) {
         const metadataList = await (

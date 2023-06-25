@@ -1,5 +1,5 @@
 import { decode } from '@project-serum/anchor/dist/cjs/utils/bytes/hex';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import nacl from 'tweetnacl';
 import {
   Metaplex,
@@ -38,16 +38,6 @@ export function checkIfMessageIsSigned(
   }
 }
 
-export const mpx = new Metaplex(RPC_CONNECTION).use(
-  bundlrStorage({
-    address:
-      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
-    providerUrl:
-      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
-    timeout: 60000,
-  }),
-);
-
 const PROGRAM_ID = process.env.SOLANA_PROGRAM as string;
 
 export const redirectUri = `${process.env.BASE_ENDPOINT}/${TWITTER_AUTH}/${REDIRECT}`;
@@ -64,9 +54,15 @@ export const frontEndpoint = process.env.FRONT_ENDPOINT as string;
 export const derugProgram = new Program<DerugProgram>(
   IDL,
   new PublicKey(PROGRAM_ID),
-  new AnchorProvider(RPC_CONNECTION, new Wallet(Keypair.generate()), {
-    commitment: 'confirmed',
-  }),
+  new AnchorProvider(
+    new Connection(
+      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
+    ),
+    new Wallet(Keypair.generate()),
+    {
+      commitment: 'confirmed',
+    },
+  ),
 );
 
 const cliendId = process.env.CLIENT_ID!;

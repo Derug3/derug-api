@@ -1,6 +1,5 @@
 import { BN } from 'bn.js';
 import { bignumber } from 'mathjs';
-import { mpx } from 'src/utilities/utils';
 import { InitMachineRequestDto } from '../dto/init-machine.dto';
 import {
   keypairIdentity,
@@ -12,7 +11,7 @@ import { Keypair, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 import { PublicRemint } from '../entity/public-remint.entity';
 import { BadRequestException } from '@nestjs/common';
 import { PublicRemintRepository } from '../repository/public-remint.repository';
-import { RPC_CONNECTION } from 'src/utilities/solana/utilities';
+import { metaplex, RPC_CONNECTION } from 'src/utilities/solana/utilities';
 
 export class InitCandyMachine {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}
@@ -27,9 +26,9 @@ export class InitCandyMachine {
         1 * LAMPORTS_PER_SOL,
       );
       await RPC_CONNECTION.confirmTransaction(airdrop);
-      mpx.use(keypairIdentity(kp));
+      metaplex.use(keypairIdentity(kp));
       const candyMachine = Keypair.generate();
-      const initIx = await mpx.candyMachinesV2().create({
+      const initIx = await metaplex.candyMachinesV2().create({
         wallet: new PublicKey(initRequestDto.wallet),
         creators: [
           {
@@ -69,7 +68,7 @@ export class InitCandyMachine {
     candyMachine: string,
   ) {
     let itemsLoaded = 0;
-    const ix = await mpx.candyMachinesV2().insertItems({
+    const ix = await metaplex.candyMachinesV2().insertItems({
       candyMachine: {
         address: new PublicKey(candyMachine),
         itemsAvailable: toBigNumber(itemsAvailable),
