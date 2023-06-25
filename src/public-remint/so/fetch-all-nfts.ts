@@ -1,21 +1,17 @@
-import {
-  JsonMetadata,
-  keypairIdentity,
-  Metadata,
-  Nft,
-  Sft,
-  walletAdapterIdentity,
-} from '@metaplex-foundation/js';
-import {} from '@metaplex-foundation/mpl-token-metadata';
+import { chunk, keypairIdentity } from '@metaplex-foundation/js';
 import { BadRequestException, Logger } from '@nestjs/common';
-import { Wallet } from '@project-serum/anchor';
 import {
   PublicKey,
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js';
 import { remintConfigSeed } from 'src/utilities/constants';
-import { metaplex, RPC_CONNECTION } from 'src/utilities/solana/utilities';
+import {
+  heliusMetadataEndpoint,
+  heliusMintlistEndpoint,
+  metaplex,
+  RPC_CONNECTION,
+} from 'src/utilities/solana/utilities';
 import { derugProgram, metadataUploader, mpx } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from '../dto/candy-machine.dto';
 import { PublicRemint } from '../entity/public-remint.entity';
@@ -32,10 +28,45 @@ export class FetchAllNftsFromCollection {
     txData: GetNftsByUpdateAuthority,
   ) {
     try {
-      let allNfts = await mpx.nfts().findAllByUpdateAuthority({
-        updateAuthority: new PublicKey(updateAuthority),
-      });
+      let queryFinished = false;
+      const mints: string[] = [];
+      let paginationToken: string | undefined = undefined;
+      while (!queryFinished) {
+        const respoonse = await fetch(heliusMintlistEndpoint, {
+          method: 'POST',
+          body: JSON.stringify({
+            query: {
+              firstVerifiedCreators: [updateAuthority],
+            },
+            options: {
+              limit: 10000,
+              paginationToken,
+            },
+          }),
+        });
+        const parsedResponse = await respoonse.json();
 
+        if (!parsedResponse.paginationToken) {
+          queryFinished = true;
+        }
+        paginationToken = parsedResponse.paginationToken;
+        parsedResponse.result.forEach((mint) => mints.push(mint.mint));
+      }
+      let allNfts: any[] = [];
+      const chunkedMints = chunk(mints, 100);
+      for (const mintsChunk of chunkedMints) {
+        const metadataList = await (
+          await fetch(heliusMetadataEndpoint, {
+            method: 'POST',
+            body: JSON.stringify({
+              mintAccounts: mintsChunk,
+              includeOffChain: true,
+            }),
+          })
+        ).json();
+
+        metadataList.forEach((nft) => allNfts.push(nft));
+      }
       this.logger.log(`Fetched ${allNfts.length} NFTs from Metadata program`);
 
       const derugDataAcc = await derugProgram.account.derugData.fetch(
@@ -46,14 +77,14 @@ export class FetchAllNftsFromCollection {
         new PublicKey(txData.derugRequest),
       );
 
-      allNfts = allNfts.filter(
-        (nft) =>
-          nft.collection?.address.toString() ===
-            derugDataAcc.collection.toString() ||
-          nft.creators.find(
-            (c) => c.address.toString() === derugDataAcc.collection.toString(),
-          ),
-      );
+      // allNfts = allNfts.filter(
+      //   (nft) =>
+      //     nft.collection?.address.toString() ===
+      //       derugDataAcc.collection.toString() ||
+      //     nft.creators.find(
+      //       (c) => c.address.toString() === derugDataAcc.collection.toString(),
+      //     ),
+      // );
 
       this.logger.log(
         `Collection with ${allNfts.length} NFTs aftrer filtering!`,
@@ -71,9 +102,15 @@ export class FetchAllNftsFromCollection {
         derugData,
       );
 
+      const failed: string[] = [];
       if (existingMetadata.length === 0) {
         const remintData: PublicRemint[] = [];
         for (const nft of allNfts) {
+          if (!nft.onChainMetadata?.metadata) {
+            failed.push(nft);
+            continue;
+          }
+
           const nftData = await this.parseJsonMetadata(
             derugRequest.newName,
             derugRequest.newSymbol,
@@ -100,6 +137,20 @@ export class FetchAllNftsFromCollection {
           }
         }
         await this.publicRemintRepo.storeAllCollectionNfts(remintData);
+
+        metaplex.use(keypairIdentity(metadataUploader));
+
+        const uploadFailed = await metaplex.storage().upload({
+          contentType: 'application/json',
+          buffer: Buffer.from(JSON.stringify(failed)),
+          displayName: 'Failed NM',
+          extension: '.json',
+          tags: [],
+          fileName: 'nice_mice',
+          uniqueName: 'nice_mice',
+        });
+
+        this.logger.error(`Uploaded failed at ${uploadFailed}`);
       }
 
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
@@ -117,7 +168,7 @@ export class FetchAllNftsFromCollection {
   }
 
   mapNftToRemintData(
-    nft: Metadata<JsonMetadata<string>> | Nft | Sft,
+    nft: any,
     derugData: string,
     newName: string,
     newSymbol: string,
@@ -127,11 +178,11 @@ export class FetchAllNftsFromCollection {
 
     remintData.dateReminted = null;
     remintData.hasReminted = false;
-    remintData.name = nft.name;
-    remintData.nftMetadata = nft.address.toString();
+    remintData.name = nft.onChainMetadata.metadata.data.name;
+    remintData.nftMetadata = nft.onChainMetadata.metadata.key;
     remintData.remintAuthority = null;
-    remintData.uri = nft.uri;
-    remintData.creator = nft.creators[0].address.toString();
+    remintData.uri = nft.onChainMetadata.metadata.data.uri;
+    remintData.creator = '';
     remintData.derugData = derugData;
     remintData.newName = newName;
     remintData.newUri = newUri;
@@ -145,20 +196,23 @@ export class FetchAllNftsFromCollection {
     newSymbol: string,
     sellerFeeBps: number,
     creators: { address: string; share: number }[],
-    nft: Metadata<JsonMetadata<string>> | Nft | Sft,
+    nft: any,
   ) {
     try {
       metaplex.use(keypairIdentity(metadataUploader));
 
-      const nftData = await (await fetch(nft.uri)).json();
+      this.logger.debug('Starting upload');
 
-      const newNftName = newName + ' #' + nftData.name.split('#')[1];
+      const jsonNft = await (
+        await fetch(nft.onChainMetadata?.metadata.data.uri)
+      ).json();
+      const newNftName = newName + ' #' + jsonNft.name?.split('#')[1];
       const data = {
-        ...nftData,
+        ...jsonNft,
         symbol: newSymbol,
         seller_fee_basis_points: sellerFeeBps,
         name: newNftName,
-        external_url: '',
+        external_url: 'https://derug.us',
         creators: creators.map((c) => {
           return {
             address: c.address.toString(),
