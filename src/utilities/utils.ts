@@ -38,11 +38,12 @@ export function checkIfMessageIsSigned(
   }
 }
 
-//TODO:Fix this before mainnet
 export const mpx = new Metaplex(RPC_CONNECTION).use(
   bundlrStorage({
-    address: 'https://devnet.bundlr.network',
-    providerUrl: 'https://api.devnet.solana.com',
+    address:
+      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
+    providerUrl:
+      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
     timeout: 60000,
   }),
 );
