@@ -1,4 +1,4 @@
-import { chunk, keypairIdentity } from '@metaplex-foundation/js';
+import { chunk, keypairIdentity, MetaplexFile } from '@metaplex-foundation/js';
 import { BadRequestException, Logger } from '@nestjs/common';
 import {
   PublicKey,
@@ -9,13 +9,17 @@ import { remintConfigSeed } from 'src/utilities/constants';
 import {
   heliusMetadataEndpoint,
   heliusMintlistEndpoint,
-  metaplex,
   RPC_CONNECTION,
+  shadowDrive,
+  storageUrl,
 } from 'src/utilities/solana/utilities';
+
+import { ShadowFile, ShdwDrive } from '@shadow-drive/sdk';
 import { derugProgram, metadataUploader } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from '../dto/candy-machine.dto';
 import { PublicRemint } from '../entity/public-remint.entity';
 import { PublicRemintRepository } from '../repository/public-remint.repository';
+import { Wallet } from '@project-serum/anchor';
 
 export class FetchAllNftsFromCollection {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}
@@ -54,8 +58,9 @@ export class FetchAllNftsFromCollection {
       }
 
       let allNfts: any[] = [];
-      console.log(mints.length);
-      const chunkedMints = chunk(mints, 100);
+
+      const chunkedMints = chunk(mints.slice(0, 200), 100);
+
       for (const mintsChunk of chunkedMints) {
         const metadataList = await (
           await fetch(heliusMetadataEndpoint, {
@@ -104,62 +109,56 @@ export class FetchAllNftsFromCollection {
         derugData,
       );
 
+      const files: ShadowFile[] = [];
       const failed: string[] = [];
-      if (existingMetadata.length === 0) {
-        const remintData: PublicRemint[] = [];
-        for (const nft of allNfts) {
-          if (!nft.onChainMetadata?.metadata) {
-            failed.push(nft);
-            continue;
-          }
 
-          const nftData = await this.parseJsonMetadata(
-            derugRequest.newName,
-            derugRequest.newSymbol,
-            derugRequest.sellerFeeBps,
-            derugRequest.creators.map((c) => {
-              return {
-                address: c.address.toBase58(),
-                share: c.share,
-              };
-            }),
-
-            nft,
-          );
-          if (nftData && nftData.name && nftData.uri) {
-            remintData.push(
-              this.mapNftToRemintData(
-                nft,
-                derugData,
-                nftData.name,
-                derugRequest.newSymbol,
-                nftData.uri,
-              ),
-            );
-          }
+      for (const nft of allNfts) {
+        if (
+          !nft.onChainMetadata?.metadata ||
+          !nft.onChainMetadata.metadata?.data?.uri
+        ) {
+          failed.push(nft);
+          continue;
         }
-        await this.publicRemintRepo.storeAllCollectionNfts(remintData);
 
-        metaplex.use(keypairIdentity(metadataUploader));
+        const nftData = await this.parseJsonMetadata(
+          derugRequest.newName,
+          derugRequest.newSymbol,
+          derugRequest.sellerFeeBps,
+          derugRequest.creators.map((c) => {
+            return {
+              address: c.address.toBase58(),
+              share: c.share,
+            };
+          }),
 
-        const uploadFailed = await metaplex.storage().upload({
-          contentType: 'application/json',
-          buffer: Buffer.from(JSON.stringify(failed)),
-          displayName: 'Failed NM',
-          extension: '.json',
-          tags: [],
-          fileName: 'nice_mice',
-          uniqueName: 'nice_mice',
-        });
+          nft,
+        );
+        console.log(nftData);
 
-        this.logger.error(`Uploaded failed at ${uploadFailed}`);
+        files.push(nftData.file);
+        if (nftData && nftData.name) {
+          console.log(nftData.file);
+
+          await this.publicRemintRepo.storeAllCollectionNfts([
+            this.mapNftToRemintData(
+              nft,
+              derugData,
+              derugDataAcc.newName + '#' + nftData.name,
+              derugRequest.newSymbol,
+              storageUrl + nftData.name + '.json',
+            ),
+          ]);
+        }
       }
 
+      this.logger.log('Starting Shadow upload');
+      const wallet = new Wallet(metadataUploader);
+      try {
+        const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
+        await shdw.uploadMultipleFiles(new PublicKey(shadowDrive), files, 100);
+      } catch (error) {}
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
-      // await this.initPrivateMint(
-      //   new PublicKey(derugData),
-      //   new PublicKey(txData.derugRequest),
-      // );
     } catch (error) {
       console.log(error);
 
@@ -181,7 +180,7 @@ export class FetchAllNftsFromCollection {
     remintData.dateReminted = null;
     remintData.hasReminted = false;
     remintData.name = nft.onChainMetadata.metadata.data.name;
-    remintData.nftMetadata = nft.onChainMetadata.metadata.key;
+    remintData.nftMetadata = nft.onChainMetadata.metadata.mint;
     remintData.remintAuthority = null;
     remintData.uri = nft.onChainMetadata.metadata.data.uri;
     remintData.creator = '';
@@ -201,8 +200,6 @@ export class FetchAllNftsFromCollection {
     nft: any,
   ) {
     try {
-      metaplex.use(keypairIdentity(metadataUploader));
-
       this.logger.debug('Starting upload');
 
       const jsonNft = await (
@@ -227,15 +224,9 @@ export class FetchAllNftsFromCollection {
         data.collection.name = newName;
       }
 
-      const uploaded = await metaplex.nfts().uploadMetadata(data);
-
-      this.logger.verbose(
-        `Uploaded metadata on path:${uploaded.uri} with name: ${uploaded.metadata.name}`,
-      );
-
       return {
-        uri: uploaded.uri,
-        name: newNftName,
+        file: uploadJson(JSON.stringify(data), newNftName.split('#')[1]),
+        name: newNftName.split('#')[1],
       };
     } catch (error) {
       console.log('Failed to upload metadata for NFT', error);
@@ -275,3 +266,12 @@ export class FetchAllNftsFromCollection {
     }
   }
 }
+
+const uploadJson = (jsonData: string, name: string) => {
+  const file: ShadowFile = {
+    file: Buffer.from(jsonData),
+    name: `${name}.json`,
+  };
+
+  return file;
+};

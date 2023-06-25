@@ -1,5 +1,5 @@
 import { bundlrStorage, Metaplex, Signer } from '@metaplex-foundation/js';
-import { Connection } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import * as dotenv from 'dotenv';
 import { GraphQLClient } from 'graphql-request';
 import { metadataUploader } from '../utils';
@@ -20,3 +20,11 @@ export const graphQLClient = new GraphQLClient(
 export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
 
 export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
+
+//TODO:change
+export const shadowDrive = new PublicKey(
+  '3PVENJxfDQfXcPQjtipxFcHr6S9KCxAAYWYbNoagkj9p',
+);
+
+export const storageUrl =
+  'https://shdw-drive.genesysgo.net/3PVENJxfDQfXcPQjtipxFcHr6S9KCxAAYWYbNoagkj9p/';

@@ -46,7 +46,7 @@ export class PublicRemintService implements OnModuleInit {
     derugProgram.addEventListener('NftRemintedEvent', async (data) => {
       try {
         await this.updateMintedNft.execute(data);
-        this.logger.debug(`Minted NFT:${data.oldNftMetadata.toString()}`);
+        this.logger.debug(`Minted NFT:${data.oldNftMint.toString()}`);
       } catch (error) {}
     });
   }
