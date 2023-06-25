@@ -130,22 +130,25 @@ export class FetchAllNftsFromCollection {
 
           nft,
         );
-        this.logger.verbose(`Parsed metadata for ${nftData.name}`);
+        if (nftData) {
+          this.logger.verbose(`Parsed metadata for ${nftData?.name}`);
 
-        files.push(nftData.file);
-        if (nftData && nftData.name) {
-          console.log(nftData.file);
+          files.push(nftData.file);
+          if (nftData && nftData.name) {
+            console.log(nftData.file);
 
-          await this.publicRemintRepo.storeAllCollectionNfts([
-            this.mapNftToRemintData(
-              nft,
-              derugData,
-              derugDataAcc.newName + '#' + nftData.name,
-              derugRequest.newSymbol,
-              storageUrl + nftData.name + '.json',
-            ),
-          ]);
-          this.logger.log(`Stored in DB data for ${nftData.name}`);
+            await this.publicRemintRepo.storeAllCollectionNfts([
+              this.mapNftToRemintData(
+                nft,
+                derugData,
+                //TODO:remove
+                'Nice Mice ' + '#' + nftData.name,
+                derugRequest.newSymbol,
+                storageUrl + nftData.name + '.json',
+              ),
+            ]);
+            this.logger.log(`Stored in DB data for ${nftData.name}`);
+          }
         }
       }
 
