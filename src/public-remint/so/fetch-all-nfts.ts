@@ -60,7 +60,7 @@ export class FetchAllNftsFromCollection {
 
       let allNfts: any[] = [];
 
-      const chunkedMints = chunk(mints.slice(0, 100), 100);
+      const chunkedMints = chunk(mints, 100);
 
       for (const mintsChunk of chunkedMints) {
         const metadataList = await (
