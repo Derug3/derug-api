@@ -10,7 +10,7 @@ export class WalletWlService implements OnModuleInit {
     this.discorBotHandler = new DiscordBotHandler(wlRepo);
   }
   onModuleInit() {
-    this.discorBotHandler.execute();
+    // this.discorBotHandler.execute();
   }
 
   getAllWhitelistsForDerug(derugAddress: string) {
