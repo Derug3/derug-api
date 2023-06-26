@@ -8,7 +8,7 @@ const CONNECTION_URL = process.env.SOLANA_ENDPOINT as string;
 dotenv.config();
 //TODO:load from env
 export const RPC_CONNECTION = new Connection(
-  'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
+  'https://mainnet.helius-rpc.com/?api-key=4ddbd31d-ca46-4ca1-b85b-49577053fbd7',
 );
 
 export const metaplex = new Metaplex(RPC_CONNECTION).use(bundlrStorage());

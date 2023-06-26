@@ -12,16 +12,16 @@ export class TensorController {
 
   @Get('/traits/:slug')
   getTraits(@Param('slug') slug: string) {
-    return this.tensorService.getTraitsTensor(slug);
+    return [];
   }
 
   @Get('/listings/:slug')
   getListings(@Param('slug') slug: string) {
-    return this.tensorService.getTensorListings(slug);
+    return [];
   }
 
   @Get('/activities/:slug')
   getRecentActivities(@Param('slug') slug: string) {
-    return this.tensorService.getTensorRecentActivities(slug);
+    return [];
   }
 }
