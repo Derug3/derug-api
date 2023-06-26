@@ -56,7 +56,7 @@ export const derugProgram = new Program<DerugProgram>(
   new PublicKey(PROGRAM_ID),
   new AnchorProvider(
     new Connection(
-      'https://mainnet.helius-rpc.com/?api-key=05a3a206-18c8-492f-bc34-9bff0beccaf2',
+      'https://mainnet.helius-rpc.com/?api-key=88368c93-dc7e-4637-9328-46fc7a414549',
     ),
     new Wallet(Keypair.generate()),
     {
