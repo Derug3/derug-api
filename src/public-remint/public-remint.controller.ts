@@ -32,6 +32,11 @@ export class PublicRemintController {
     return this.publicRemintService.storeCandyMachineData(candyMachine);
   }
 
+  @Post('save-minted')
+  saveMintedNft(@Body() minted: { mint: string; reminter: string }) {
+    return this.publicRemintService.saveReminted(minted.mint, minted.reminter);
+  }
+
   @Get('/metadata/:oldMetadata')
   getPrivateMintMetadta(@Param('oldMetadata') oldMetadata: string) {
     return this.publicRemintService.getNftData(oldMetadata);

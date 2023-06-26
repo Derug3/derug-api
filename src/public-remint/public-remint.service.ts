@@ -45,7 +45,10 @@ export class PublicRemintService implements OnModuleInit {
     );
     derugProgram.addEventListener('NftRemintedEvent', async (data) => {
       try {
-        await this.updateMintedNft.execute(data);
+        await this.updateMintedNft.execute(
+          data.oldNftMint.toString(),
+          data.reminter.toString(),
+        );
         this.logger.debug(`Minted NFT:${data.oldNftMint.toString()}`);
       } catch (error) {}
     });
@@ -53,6 +56,10 @@ export class PublicRemintService implements OnModuleInit {
 
   fetchAllNftsFromCollection(tx: GetNftsByUpdateAuthority) {
     return this.fetchAllNfts.execute(tx.updateAuthority, tx.derugData, tx);
+  }
+
+  saveReminted(mint: string, reminter: string) {
+    return this.updateMintedNft.execute(mint, reminter);
   }
 
   getNonMintedNfts(derugData: string) {

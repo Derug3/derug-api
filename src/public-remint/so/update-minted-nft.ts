@@ -4,17 +4,15 @@ import { PublicRemintRepository } from '../repository/public-remint.repository';
 export class UpdateMintedNft {
   constructor(private readonly publicMintRepo: PublicRemintRepository) {}
   private logger = new Logger(UpdateMintedNft.name);
-  async execute(data: any) {
+  async execute(oldMint: string, reminter: string) {
     try {
-      const nonMinted = await this.publicMintRepo.getByMetadata(
-        data.oldNftMetadata.toString(),
-      );
+      const nonMinted = await this.publicMintRepo.getByMetadata(oldMint);
       if (!nonMinted) {
         this.logger.error('NFT that has been minted does not exist in DB!');
         return;
       }
       nonMinted.dateReminted = new Date();
-      nonMinted.remintAuthority = data.reminter.toString();
+      nonMinted.remintAuthority = reminter;
       nonMinted.hasReminted = true;
       await this.publicMintRepo.updateRemintedNft(nonMinted);
     } catch (error) {

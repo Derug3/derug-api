@@ -109,59 +109,63 @@ export class FetchAllNftsFromCollection {
       const files: ShadowFile[] = [];
       const failed: string[] = [];
 
-      for (const nft of allNfts) {
-        if (
-          !nft.onChainMetadata?.metadata ||
-          !nft.onChainMetadata.metadata?.data?.uri
-        ) {
-          failed.push(nft);
-          continue;
-        }
+      const existingMetadata = await this.publicRemintRepo.getNonMintedNfts(
+        derugData,
+      );
 
-        const nftData = await this.parseJsonMetadata(
-          derugRequest.newName,
-          derugRequest.newSymbol,
-          derugRequest.sellerFeeBps,
-          derugRequest.creators.map((c) => {
-            return {
-              address: c.address.toBase58(),
-              share: c.share,
-            };
-          }),
-
-          nft,
-        );
-        if (nftData) {
-          this.logger.verbose(`Parsed metadata for ${nftData?.name}`);
-
-          files.push(nftData.file);
-          if (nftData && nftData.name) {
-            const wallet = new Wallet(metadataUploader);
-
-            const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
-
-            const uploaded = await shdw.uploadFile(shadowDrive, nftData.file);
-
-            console.log(`Uploaded at ${uploaded.finalized_locations[0]}`);
-
-            await this.publicRemintRepo.storeAllCollectionNfts([
-              this.mapNftToRemintData(
-                nft,
-                derugData,
-                //TODO:remove
-                'Nice Mice ' + '#' + nftData.name,
-                derugRequest.newSymbol,
-                uploaded.finalized_locations[0],
-              ),
-            ]);
-            this.logger.log(`Stored in DB data for ${nftData.name}`);
+      if (existingMetadata.length === 0) {
+        for (const nft of allNfts) {
+          if (
+            !nft.onChainMetadata?.metadata ||
+            !nft.onChainMetadata.metadata?.data?.uri
+          ) {
+            failed.push(nft);
+            continue;
           }
-        } else {
-          this.logger.error(`Failed for: ${nft}`);
+
+          const nftData = await this.parseJsonMetadata(
+            derugRequest.newName,
+            derugRequest.newSymbol,
+            derugRequest.sellerFeeBps,
+            derugRequest.creators.map((c) => {
+              return {
+                address: c.address.toBase58(),
+                share: c.share,
+              };
+            }),
+
+            nft,
+          );
+          if (nftData) {
+            this.logger.verbose(`Parsed metadata for ${nftData?.name}`);
+
+            files.push(nftData.file);
+            if (nftData && nftData.name) {
+              const wallet = new Wallet(metadataUploader);
+
+              const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
+
+              const uploaded = await shdw.uploadFile(shadowDrive, nftData.file);
+
+              console.log(`Uploaded at ${uploaded.finalized_locations[0]}`);
+
+              await this.publicRemintRepo.storeAllCollectionNfts([
+                this.mapNftToRemintData(
+                  nft,
+                  derugData,
+                  //TODO:remove
+                  'Nice Mice ' + '#' + nftData.name,
+                  derugRequest.newSymbol,
+                  uploaded.finalized_locations[0],
+                ),
+              ]);
+              this.logger.log(`Stored in DB data for ${nftData.name}`);
+            }
+          } else {
+            this.logger.error(`Failed for: ${nft}`);
+          }
         }
       }
-
-      this.logger.log('Starting Shadow upload');
 
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
     } catch (error) {
