@@ -9,6 +9,7 @@ import { remintConfigSeed } from 'src/utilities/constants';
 import {
   heliusMetadataEndpoint,
   heliusMintlistEndpoint,
+  metaplex,
   RPC_CONNECTION,
   shadowDrive,
   storageUrl,
@@ -59,7 +60,7 @@ export class FetchAllNftsFromCollection {
 
       let allNfts: any[] = [];
 
-      const chunkedMints = chunk(mints, 100);
+      const chunkedMints = chunk(mints.slice(0, 100), 100);
 
       for (const mintsChunk of chunkedMints) {
         const metadataList = await (
@@ -135,7 +136,13 @@ export class FetchAllNftsFromCollection {
 
           files.push(nftData.file);
           if (nftData && nftData.name) {
-            console.log(nftData.file);
+            const wallet = new Wallet(metadataUploader);
+
+            const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
+
+            const uploaded = await shdw.uploadFile(shadowDrive, nftData.file);
+
+            console.log(`Uploaded at ${uploaded.finalized_locations[0]}`);
 
             await this.publicRemintRepo.storeAllCollectionNfts([
               this.mapNftToRemintData(
@@ -144,20 +151,18 @@ export class FetchAllNftsFromCollection {
                 //TODO:remove
                 'Nice Mice ' + '#' + nftData.name,
                 derugRequest.newSymbol,
-                storageUrl + nftData.name + '.json',
+                uploaded.finalized_locations[0],
               ),
             ]);
             this.logger.log(`Stored in DB data for ${nftData.name}`);
           }
+        } else {
+          this.logger.error(`Failed for: ${nft}`);
         }
       }
 
       this.logger.log('Starting Shadow upload');
-      const wallet = new Wallet(metadataUploader);
-      try {
-        const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
-        await shdw.uploadMultipleFiles(new PublicKey(shadowDrive), files, 100);
-      } catch (error) {}
+
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
     } catch (error) {
       console.log(error);
