@@ -11,6 +11,7 @@ import { TwitterAuthModule } from './twitter-auth/twitter-auth.module';
 import { CollectionVolumeModule } from './collection-volume/collection-volume.module';
 import { UserMintModule } from './user-mint/user-mint.module';
 import { WalletWlModule } from './wallet_wl/wallet_wl.module';
+import { DiscordAuthModule } from './discord-auth/discord-auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { WalletWlModule } from './wallet_wl/wallet_wl.module';
     CollectionVolumeModule,
     UserMintModule,
     WalletWlModule,
+    DiscordAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
