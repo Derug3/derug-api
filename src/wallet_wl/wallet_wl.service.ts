@@ -52,4 +52,7 @@ export class WalletWlService implements OnModuleInit {
       throw new BadRequestException(error.message);
     }
   }
+  getByDerugData(derugData: string) {
+    return this.wlRepo.getByDerugData(derugData);
+  }
 }

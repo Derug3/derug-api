@@ -1,5 +1,14 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { derugProgram } from 'src/utilities/utils';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { setupCandyMachine } from 'src/utilities/candyMachine';
+import { parseKeypair } from 'src/utilities/solana/utilities';
+import { checkIfMessageIsSigned, derugProgram } from 'src/utilities/utils';
+import { WalletWlService } from 'src/wallet_wl/wallet_wl.service';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { PublicRemint } from './entity/public-remint.entity';
@@ -28,6 +37,7 @@ export class PublicRemintService implements OnModuleInit {
   constructor(
     private readonly publicRemintRepo: PublicRemintRepository,
     private readonly candyMachineRepo: CandyMachineRepository,
+    private readonly wlService: WalletWlService,
   ) {
     this.fetchAllNfts = new FetchAllNftsFromCollection(publicRemintRepo);
     this.updateReminted = new UpdateReminted(publicRemintRepo);
@@ -82,5 +92,42 @@ export class PublicRemintService implements OnModuleInit {
 
   getNftData(metadata: string) {
     return this.getPrivateMintNftData.execute(metadata);
+  }
+
+  async initCandyMacihine(dto: InitMachineRequestDto) {
+    try {
+      const { derugData, payer, signedMessage } = dto;
+      const isValid = checkIfMessageIsSigned(
+        signedMessage,
+        `Init candy machine for derug ${derugData}`,
+        payer,
+      );
+      if (!isValid) throw new UnauthorizedException();
+      const rawAuthority = await this.authorityRepo.get(derugData);
+      const rawCandyMachine = await this.candyMachineRepo.get(derugData);
+      if (!rawAuthority || !rawCandyMachine) {
+        throw new BadRequestException(
+          'Missing data for initializing public mint!',
+        );
+      }
+      const authority = parseKeypair(rawAuthority.secretKey);
+      const candyMachine = parseKeypair(rawCandyMachine.candyMachineSecretKey);
+      const walletWl = await this.wlService.getByDerugData(derugData);
+      const publicMintConfig = await this.publicRemintRepo.getByDerugData(
+        derugData,
+      );
+
+      await setupCandyMachine(
+        candyMachine,
+        authority,
+        publicMintConfig,
+        derugData,
+        walletWl,
+        payer,
+      );
+      return candyMachine.publicKey.toString();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

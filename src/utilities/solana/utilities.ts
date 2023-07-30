@@ -1,8 +1,9 @@
 import { bundlrStorage, Metaplex, Signer } from '@metaplex-foundation/js';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as dotenv from 'dotenv';
 import { GraphQLClient } from 'graphql-request';
 import { metadataUploader } from '../utils';
+import { decode } from 'bs58';
 const CONNECTION_URL = process.env.SOLANA_ENDPOINT as string;
 
 export const heliusRpc = process.env.HELIUS_RPC;
@@ -26,3 +27,8 @@ export const botUrl = process.env.BOT_URL!;
 export const metaplexAuthorizationRules = new PublicKey(
   'eBJLFYPxJmMGKuFwpDWkzxZeUrad92kZRC5BJLpzyT9',
 );
+
+export function parseKeypair(secretKey: string) {
+  const decoded = decode(secretKey);
+  return Keypair.fromSecretKey(decoded);
+}

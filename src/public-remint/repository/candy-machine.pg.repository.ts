@@ -7,6 +7,9 @@ export class CandyMachineDataPgRepository
   extends AbstractRepository<CandyMachineData>
   implements CandyMachineRepository
 {
+  get(derugData: string): Promise<CandyMachineData> {
+    return this.repository.findOne({ where: { derugData } });
+  }
   storeCandyMachineData(
     candyMachine: CandyMachineData,
   ): Promise<CandyMachineData> {

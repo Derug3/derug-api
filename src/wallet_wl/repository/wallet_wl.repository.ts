@@ -4,4 +4,5 @@ import { WalletWl } from '../entity/wallet_wl.entity';
 export abstract class WalletWlRepository {
   abstract getAllWhitelistsForDerug(serverId: string): Promise<WalletWl>;
   abstract saveOrUpdateWalletWhitelist(wlDto: WalletWl): Promise<WalletWl>;
+  abstract getByDerugData(derugData: string): Promise<WalletWl>;
 }

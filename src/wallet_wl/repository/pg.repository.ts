@@ -8,6 +8,9 @@ export class PgRepositoryWalletWl
   extends AbstractRepository<WalletWl>
   implements WalletWlRepository
 {
+  getByDerugData(derugData: string): Promise<WalletWl> {
+    return this.repository.findOne({ where: { derugAddress: derugData } });
+  }
   getAllWhitelistsForDerug(serverId: string): Promise<WalletWl> {
     return this.repository.findOne({ where: { serverId } });
   }

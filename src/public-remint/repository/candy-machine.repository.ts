@@ -5,4 +5,5 @@ export abstract class CandyMachineRepository {
     candyMachine: CandyMachineData,
   ): Promise<CandyMachineData>;
   abstract getCandyMachineData(derugData: string): Promise<CandyMachineData>;
+  abstract get(derugData: string): Promise<CandyMachineData>;
 }

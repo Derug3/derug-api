@@ -27,6 +27,7 @@ import { NATIVE_MINT } from '@solana/spl-token';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { WalletWl, WlConfig } from 'src/wallet_wl/entity/wallet_wl.entity';
 import { getMerkleRoot, toBigNumber } from '@metaplex-foundation/js';
+import { UnauthorizedException } from '@nestjs/common';
 
 export const umi = createUmi(heliusRpc, { commitment: 'confirmed' }).use(
   mplCandyMachine(),
@@ -37,8 +38,8 @@ export async function setupCandyMachine(
   authority: Keypair,
   publicMint: PublicRemint[],
   derugData: string,
-  derugRequest: string,
   wlConfig: WalletWl | null,
+  payer: string,
 ) {
   const reminted = (
     await derugProgram.account.remintProof.all([
@@ -57,9 +58,11 @@ export async function setupCandyMachine(
   );
 
   const derugRequestAccount = await derugProgram.account.derugRequest.fetch(
-    new PublicKey(derugRequest),
+    derugDataAccount.winningRequest,
   );
 
+  if (payer !== derugRequestAccount.derugger.toString())
+    throw new UnauthorizedException();
   const { nameLength, namePrefix, uriLength, prefixUri } =
     getConfigLineSettings(publicMint[0]);
 
@@ -67,38 +70,40 @@ export async function setupCandyMachine(
     publicKey: publicKey(authority.publicKey),
     secretKey: authority.secretKey,
   });
-  const groups = await getCmGuards(wlConfig, new PublicKey(derugRequest));
+  const groups = await getCmGuards(wlConfig, derugDataAccount.winningRequest);
 
   umi.use(keypairIdentity(authoritySigner));
 
-  const cm = await create(umi, {
-    candyMachine: createSignerFromKeypair(umi, {
-      publicKey: publicKey(candyMachine.publicKey),
-      secretKey: candyMachine.secretKey,
-    }),
-    collectionMint: publicKey(derugDataAccount.newCollection),
-    collectionUpdateAuthority: authoritySigner,
-    creators: derugRequestAccount.creators.map((c) => ({
-      address: publicKey(c.address),
-      percentageShare: c.share,
-      verified: false,
-    })),
-    itemsAvailable: publicMintNfts.length,
-    sellerFeeBasisPoints: percentAmount(
-      derugRequestAccount.mintConfig.sellerFeeBps,
-      2,
-    ),
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-    ruleSet: publicKey(metaplexAuthorizationRules),
-    configLineSettings: {
-      isSequential: false,
-      nameLength,
-      prefixName: namePrefix,
-      prefixUri,
-      uriLength,
-    },
-    groups,
-  });
+  const cm = (
+    await create(umi, {
+      candyMachine: createSignerFromKeypair(umi, {
+        publicKey: publicKey(candyMachine.publicKey),
+        secretKey: candyMachine.secretKey,
+      }),
+      collectionMint: publicKey(derugDataAccount.newCollection),
+      collectionUpdateAuthority: authoritySigner,
+      creators: derugRequestAccount.creators.map((c) => ({
+        address: publicKey(c.address),
+        percentageShare: c.share,
+        verified: false,
+      })),
+      itemsAvailable: publicMintNfts.length,
+      sellerFeeBasisPoints: percentAmount(
+        derugRequestAccount.mintConfig.sellerFeeBps,
+        2,
+      ),
+      tokenStandard: TokenStandard.ProgrammableNonFungible,
+      ruleSet: publicKey(metaplexAuthorizationRules),
+      configLineSettings: {
+        isSequential: false,
+        nameLength,
+        prefixName: namePrefix,
+        prefixUri,
+        uriLength,
+      },
+      groups,
+    })
+  ).sendAndConfirm(umi);
 }
 
 export async function getCmGuards(

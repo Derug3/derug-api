@@ -7,15 +7,9 @@ export class InitMachineDto {
 
 export class InitMachineRequestDto {
   @IsString()
-  firstCreator: string;
+  derugData: string;
   @IsString()
-  wallet: string;
+  payer: string;
   @IsString()
-  collection: string;
-  @IsNumber()
-  price: number;
-  @IsNumber()
-  sellerFeeBps: number;
-  @IsString()
-  symobl: string;
+  signedMessage: string;
 }

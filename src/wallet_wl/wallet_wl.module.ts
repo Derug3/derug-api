@@ -16,5 +16,6 @@ import { Connection } from 'typeorm';
       inject: [Connection],
     },
   ],
+  exports: [WalletWlService],
 })
 export class WalletWlModule {}

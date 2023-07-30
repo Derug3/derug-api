@@ -38,4 +38,9 @@ export class PublicRemintController {
   getPrivateMintMetadta(@Param('oldMetadata') oldMetadata: string) {
     return this.publicRemintService.getNftData(oldMetadata);
   }
+
+  @Post('/initialize')
+  initializeCandyMachine(@Body() initCandyMachineDto: InitMachineRequestDto) {
+    return this.publicRemintService.initCandyMacihine(initCandyMachineDto);
+  }
 }

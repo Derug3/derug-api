@@ -9,6 +9,9 @@ export class PgAuthorityRepository
   extends Repository<Authority>
   implements AuthorityRepository
 {
+  get(derugData: string): Promise<Authority> {
+    return this.findOne({ where: { derugData } });
+  }
   async storeAuthority(derugData: string): Promise<string> {
     const authorityKp = Keypair.generate();
     const secret = encode(authorityKp.secretKey);

@@ -8,4 +8,5 @@ export abstract class PublicRemintRepository {
   abstract updateRemintedNft(nft: PublicRemint): Promise<PublicRemint>;
   abstract getByMetadata(metadata: string): Promise<PublicRemint>;
   abstract getNewNftData(metadata: string): Promise<PublicRemint>;
+  abstract getByDerugData(derugData: string): Promise<PublicRemint[]>;
 }
