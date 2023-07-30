@@ -13,21 +13,6 @@ export class DiscordBotHandler {
       intents: 'GuildBans',
     });
 
-    let wlConfig = await this.wlRepo.getAllWhitelistsForDerug('nice-mice');
-
-    if (!wlConfig) {
-      wlConfig = await this.wlRepo.saveOrUpdateWalletWhitelist({
-        derugAddress: 'nice-mice',
-        duration: 1,
-        wallets: '[]',
-        wlType: WlType.AllowList,
-      });
-    }
-
-    const parsedWlList: { userId: string; wallet: string }[] = JSON.parse(
-      wlConfig?.wallets,
-    );
-
     await bot.login(process.env.DISCORD_BOT_TOKEN!);
 
     bot.on('ready', () => {
@@ -73,21 +58,30 @@ export class DiscordBotHandler {
         throw new Error('Inetaction is not command!');
 
       try {
-        const { channelId, options, user } = interaction;
+        const { channelId, options, user, guildId } = interaction;
 
         const wallet = options.data[0].value;
         new PublicKey(wallet);
 
-        if (parsedWlList.find((w) => w.userId === user.id)) {
+        const whitelistConfig = await this.wlRepo.getAllWhitelistsForDerug(
+          guildId,
+        );
+
+        if (!whitelistConfig) {
+          interaction.reply('Invalid discord bot setup! 🟥 ');
+        }
+
+        if (whitelistConfig.wallets.find((w) => w.userId === user.id)) {
           interaction.reply('You are already whitelisted! 🟥');
           return;
         }
-        if (channelId !== process.env.CHANNEL_ID!) {
-          interaction.reply('Failed to whitelist. Invalid channel! 🟥');
-        }
-        parsedWlList.push({ userId: user.id, wallet: wallet as string });
-        wlConfig.wallets = JSON.stringify(parsedWlList);
-        await this.wlRepo.saveOrUpdateWalletWhitelist(wlConfig);
+
+        whitelistConfig.wallets.push({
+          userId: user.id,
+          wallet: wallet as string,
+        });
+
+        await this.wlRepo.saveOrUpdateWalletWhitelist(whitelistConfig);
         interaction.reply(
           `Congrats ${user.username}.You successfully whitelisted 🟩`,
         );

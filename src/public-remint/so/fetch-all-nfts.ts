@@ -6,15 +6,7 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js';
 import { remintConfigSeed } from 'src/utilities/constants';
-import {
-  heliusMetadataEndpoint,
-  heliusMintlistEndpoint,
-  heliusRpc,
-  metaplex,
-  RPC_CONNECTION,
-  shadowDrive,
-  storageUrl,
-} from 'src/utilities/solana/utilities';
+import { heliusRpc, RPC_CONNECTION } from 'src/utilities/solana/utilities';
 
 import { ShadowFile, ShdwDrive } from '@shadow-drive/sdk';
 import { derugProgram, metadataUploader } from 'src/utilities/utils';

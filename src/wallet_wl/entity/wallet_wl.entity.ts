@@ -4,10 +4,13 @@ import { WlType } from '../dto/wallet_wl.dto';
 @Entity()
 export class WalletWl {
   @PrimaryColumn()
-  derugAddress: string;
+  serverId: string;
 
   @Column()
-  wallets: string;
+  derugAddress: string;
+
+  @Column({ type: 'jsonb' })
+  wallets: WlConfig[];
 
   @Column({ nullable: true })
   duration: number;

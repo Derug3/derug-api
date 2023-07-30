@@ -14,8 +14,6 @@ export enum WlType {
 export class WalletWlDto {
   @IsString()
   derugAddress: string;
-  @IsArray()
-  wallets: string[];
   @IsString()
   derugger: string;
   @IsString()
@@ -23,6 +21,6 @@ export class WalletWlDto {
   @IsOptional()
   @IsNumber()
   duration: number;
-  @IsEnum(WlType)
-  wlType: WlType;
+  @IsString()
+  serverId: string;
 }

@@ -11,8 +11,8 @@ export class WalletWlController {
     return this.walletWlService.getAllWhitelistsForDerug(derugAddress);
   }
 
-  @Post('/store-wallets')
-  storeWlWallets(@Body() wlDto: WalletWlDto) {
-    return this.walletWlService.saveOrUpdateWhitelistConfig(wlDto);
+  @Post('setup-bot')
+  setupBot(@Body() wlDto: WalletWlDto) {
+    return this.walletWlService.setupBot(wlDto);
   }
 }

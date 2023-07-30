@@ -13,6 +13,7 @@ import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { DerugProgram, IDL } from '../solana/derug_program';
 import Client, { auth } from 'twitter-api-sdk';
 import { REDIRECT, TWITTER_AUTH } from './constants';
+
 dotenv.config();
 export function checkIfMessageIsSigned(
   signedMessage: string | undefined,

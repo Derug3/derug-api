@@ -7,11 +7,11 @@ export class PgPublicRemint
   extends AbstractRepository<PublicRemint>
   implements PublicRemintRepository
 {
-  getNewNftData(metadata: string): Promise<PublicRemint> {
-    return this.repository.findOne({ where: { nftMetadata: metadata } });
+  getNewNftData(mint: string): Promise<PublicRemint> {
+    return this.repository.findOne({ where: { mint: mint } });
   }
-  getByMetadata(metadata: string): Promise<PublicRemint> {
-    return this.repository.findOne({ where: { nftMetadata: metadata } });
+  getByMetadata(mint: string): Promise<PublicRemint> {
+    return this.repository.findOne({ where: { mint } });
   }
   storeAllCollectionNfts(nfts: PublicRemint[]): Promise<PublicRemint[]> {
     return this.repository.save(nfts);

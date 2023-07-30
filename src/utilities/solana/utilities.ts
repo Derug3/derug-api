@@ -21,10 +21,4 @@ export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
 
 export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
 
-//TODO:change
-export const shadowDrive = new PublicKey(
-  'AdCwAc5Hcubbog6wAxcsMVUZKfwNqAmfmgiP8GsFYvkw',
-);
-
-export const storageUrl =
-  'https://shdw-drive.genesysgo.net/AdCwAc5Hcubbog6wAxcsMVUZKfwNqAmfmgiP8GsFYvkw/';
+export const botUrl = process.env.BOT_URL!;
