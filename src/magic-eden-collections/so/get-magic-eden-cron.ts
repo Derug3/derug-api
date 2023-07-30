@@ -60,7 +60,7 @@ export class GetMagicEdenCron {
       if (response.filter) {
         const flaggedCollections = await Promise.all(
           response
-            .filter((c) => !!c.isFlagged)
+            .filter((c) => !!c.isFlagged && c.symbol) 
             .map(async (ac) => {
               try {
                 const traits: NftTrait[] = (

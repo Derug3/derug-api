@@ -6,13 +6,14 @@ import { PublicRemintRepository } from './repository/public-remint.repository';
 import { PgPublicRemint } from './repository/public-remint.pg.repository';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
 import { CandyMachineDataPgRepository } from './repository/candy-machine.pg.repository';
-import { WalletWl } from 'src/wallet_wl/entity/wallet_wl.entity';
+import { WalletWlModule } from 'src/wallet_wl/wallet_wl.module';
 
 @Module({
   controllers: [PublicRemintController],
+  imports: [WalletWlModule],
   providers: [
     PublicRemintService,
-    WalletWl,
+    
     {
       provide: PublicRemintRepository,
       useFactory: (conn: Connection) =>

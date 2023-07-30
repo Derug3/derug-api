@@ -7,12 +7,17 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CollectionActivities } from './collection-activities.entity';
 
 @Entity()
 export class Collection {
-  @PrimaryColumn()
+
+  @PrimaryGeneratedColumn('uuid')
+  id: string;  
+
+  @Column({nullable: true})
   symbol: string;
 
   @Column()
