@@ -83,6 +83,7 @@ export class GetMagicEdenCron {
                   return nftTrait;
                 });
               } catch (error) {
+                this.logger.error(error.message);
                 return ac;
               }
             }),

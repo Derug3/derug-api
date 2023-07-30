@@ -18,9 +18,9 @@ export class MagicEdenCollectionsService {
   private readonly getRandomCollections: GetRandomCollections;
   private readonly getByName: GetByName;
   private readonly getBySlug: GetSingleCollection;
-  private readonly tensorService: TensorService;
+
   private readonly getAllCollections: GetAllCollections;
-  constructor(private readonly collectionRepository: CollectionRepository) {
+  constructor(private readonly collectionRepository: CollectionRepository,private readonly tensorService: TensorService) {
     this.getMagicEdenCron = new GetMagicEdenCron(
       collectionRepository,
       this.tensorService,

@@ -11,7 +11,7 @@ export class NftTrait {
   @ManyToOne(() => TraitData, (traitData) => traitData.trait, { eager: true })
   traits: TraitData[];
   @ManyToOne(() => Collection, (collection) => collection.traits, {
-    eager: true,
+    // eager: true,
   })
   collection: Collection;
 }

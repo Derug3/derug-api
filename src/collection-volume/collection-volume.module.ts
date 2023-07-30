@@ -8,9 +8,10 @@ import { Connection } from 'typeorm';
 import { CollectionRepository } from 'src/magic-eden-collections/repository/collection.reposity';
 import { PgRepository } from 'src/magic-eden-collections/repository/pg.repository';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TensorModule } from 'src/tensor/tensor.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
+  imports: [ScheduleModule.forRoot(),TensorModule],
   controllers: [CollectionVolumeController],
   providers: [
     CollectionVolumeService,
