@@ -11,7 +11,7 @@ import { checkIfMessageIsSigned, derugProgram } from 'src/utilities/utils';
 import { WalletWlService } from 'src/wallet_wl/wallet_wl.service';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
-import { PublicRemint } from './entity/public-remint.entity';
+import { RemintDto } from './dto/remint.dto';
 import { AuthorityRepository } from './repository/authority.repository';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
 import { PublicRemintRepository } from './repository/public-remint.repository';
@@ -20,6 +20,7 @@ import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
 import { GetPrivateMintNftData } from './so/get-private-mint-nft-data';
 import { InitCandyMachine } from './so/init-candy-machine';
+import { RemintNft } from './so/remint_nft.so';
 import { SavePublicMintData } from './so/save-public-mint';
 import { UpdateMintedNft } from './so/update-minted-nft';
 import { UpdateReminted } from './so/update-reminted';
@@ -33,6 +34,7 @@ export class PublicRemintService implements OnModuleInit {
   private getCandyMachine: GetCandyMachineData;
   private updateMintedNft: UpdateMintedNft;
   private getPrivateMintNftData: GetPrivateMintNftData;
+  private remintNft: RemintNft;
   private readonly authorityRepo: AuthorityRepository;
   constructor(
     private readonly publicRemintRepo: PublicRemintRepository,
@@ -49,6 +51,7 @@ export class PublicRemintService implements OnModuleInit {
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
     this.getPrivateMintNftData = new GetPrivateMintNftData(publicRemintRepo);
+    this.remintNft = new RemintNft();
   }
   private readonly logger = new Logger(PublicRemintService.name);
   async onModuleInit() {
@@ -67,7 +70,7 @@ export class PublicRemintService implements OnModuleInit {
   }
 
   fetchAllNftsFromCollection(tx: GetNftsByUpdateAuthority) {
-    return this.fetchAllNfts.execute(tx.updateAuthority, tx.derugData, tx);
+    return this.fetchAllNfts.execute(tx.creator, tx.derugData, tx);
   }
 
   saveReminted(mint: string, reminter: string) {
@@ -126,6 +129,14 @@ export class PublicRemintService implements OnModuleInit {
         payer,
       );
       return candyMachine.publicKey.toString();
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  remintNftHandler(remint: RemintDto) {
+    try {
+      return this.remintNft.execute(remint);
     } catch (error) {
       throw new BadRequestException(error.message);
     }

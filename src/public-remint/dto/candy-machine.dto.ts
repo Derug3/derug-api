@@ -2,7 +2,7 @@ import { IsString } from 'class-validator';
 
 export class GetNftsByUpdateAuthority {
   @IsString()
-  updateAuthority: string;
+  creator: string;
 
   @IsString()
   derugData: string;
