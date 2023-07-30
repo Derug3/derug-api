@@ -74,21 +74,6 @@ export class FetchAllNftsFromCollection {
 
       this.logger.log(`Fetched ${nfts.length} NFTs from Metadata program`);
 
-      const reminted = (
-        await derugProgram.account.remintProof.all([
-          {
-            memcmp: {
-              offset: 8,
-              bytes: new PublicKey(derugData).toBase58(),
-            },
-          },
-        ])
-      ).map((nft) => nft.account.oldMint.toString());
-
-      this.logger.log(`Fetched total reminted ${reminted.length} NFTs`);
-
-      nfts = nfts.filter((nft) => !reminted.includes(nft.mint));
-
       this.logger.log(`Collection with ${nfts.length} NFTs aftrer filtering!`);
 
       const files: ShadowFile[] = [];

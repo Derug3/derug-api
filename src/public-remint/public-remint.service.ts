@@ -3,6 +3,7 @@ import { derugProgram } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { PublicRemint } from './entity/public-remint.entity';
+import { AuthorityRepository } from './repository/authority.repository';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
 import { PublicRemintRepository } from './repository/public-remint.repository';
 import { FetchAllNftsFromCollection } from './so/fetch-all-nfts';
@@ -10,7 +11,7 @@ import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
 import { GetPrivateMintNftData } from './so/get-private-mint-nft-data';
 import { InitCandyMachine } from './so/init-candy-machine';
-import { SaveCandyMachine } from './so/save-candy-machine';
+import { SavePublicMintData } from './so/save-public-mint';
 import { UpdateMintedNft } from './so/update-minted-nft';
 import { UpdateReminted } from './so/update-reminted';
 
@@ -19,10 +20,11 @@ export class PublicRemintService implements OnModuleInit {
   private fetchAllNfts: FetchAllNftsFromCollection;
   private updateReminted: UpdateReminted;
   private getNonMinted: GetNonMinted;
-  private saveCandyMachine: SaveCandyMachine;
+  private savePublicMintData: SavePublicMintData;
   private getCandyMachine: GetCandyMachineData;
   private updateMintedNft: UpdateMintedNft;
   private getPrivateMintNftData: GetPrivateMintNftData;
+  private readonly authorityRepo: AuthorityRepository;
   constructor(
     private readonly publicRemintRepo: PublicRemintRepository,
     private readonly candyMachineRepo: CandyMachineRepository,
@@ -30,7 +32,10 @@ export class PublicRemintService implements OnModuleInit {
     this.fetchAllNfts = new FetchAllNftsFromCollection(publicRemintRepo);
     this.updateReminted = new UpdateReminted(publicRemintRepo);
     this.getNonMinted = new GetNonMinted(publicRemintRepo);
-    this.saveCandyMachine = new SaveCandyMachine(candyMachineRepo);
+    this.savePublicMintData = new SavePublicMintData(
+      candyMachineRepo,
+      this.authorityRepo,
+    );
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
     this.getPrivateMintNftData = new GetPrivateMintNftData(publicRemintRepo);
@@ -67,8 +72,8 @@ export class PublicRemintService implements OnModuleInit {
     return this.updateReminted.execute(metadata, wallet);
   }
 
-  storeCandyMachineData(derugData: string) {
-    return this.saveCandyMachine.execute(derugData);
+  storePublicMintData(derugData: string) {
+    return this.savePublicMintData.execute(derugData);
   }
 
   getCandyMachineData(derugData: string) {

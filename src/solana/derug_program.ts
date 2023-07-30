@@ -872,6 +872,12 @@ export type DerugProgram = {
               };
             };
           },
+          {
+            name: 'destinationAta';
+            type: {
+              option: 'publicKey';
+            };
+          },
         ];
       };
     },
@@ -2039,6 +2045,12 @@ export const IDL: DerugProgram = {
               option: {
                 defined: 'WhitelistConfig',
               },
+            },
+          },
+          {
+            name: 'destinationAta',
+            type: {
+              option: 'publicKey',
             },
           },
         ],

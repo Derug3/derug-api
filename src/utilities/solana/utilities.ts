@@ -22,3 +22,7 @@ export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
 export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
 
 export const botUrl = process.env.BOT_URL!;
+
+export const metaplexAuthorizationRules = new PublicKey(
+  'eBJLFYPxJmMGKuFwpDWkzxZeUrad92kZRC5BJLpzyT9',
+);
