@@ -1,9 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { derugProgram } from 'src/utilities/utils';
-import {
-  CandyMachineDto,
-  GetNftsByUpdateAuthority,
-} from './dto/candy-machine.dto';
+import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { PublicRemint } from './entity/public-remint.entity';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
@@ -70,8 +67,8 @@ export class PublicRemintService implements OnModuleInit {
     return this.updateReminted.execute(metadata, wallet);
   }
 
-  storeCandyMachineData(candyMachineDto: CandyMachineDto) {
-    return this.saveCandyMachine.execute(candyMachineDto);
+  storeCandyMachineData(derugData: string) {
+    return this.saveCandyMachine.execute(derugData);
   }
 
   getCandyMachineData(derugData: string) {

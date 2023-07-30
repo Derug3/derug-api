@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity()
 export class PublicRemint {
   @PrimaryColumn()
-  nftMetadata: string;
+  mint: string;
 
   @Column()
   derugData: string;

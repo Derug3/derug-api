@@ -7,9 +7,10 @@ import { Connection } from 'typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CollectionActivitiesRepository } from './repository/activities/activities.repository';
 import { PgRepositoryActivities } from './repository/activities/pg.repository';
+import { TensorModule } from 'src/tensor/tensor.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
+  imports: [ScheduleModule.forRoot(), TensorModule],
   controllers: [MagicEdenCollectionsController],
   providers: [
     MagicEdenCollectionsService,

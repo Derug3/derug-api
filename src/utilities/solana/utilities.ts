@@ -5,11 +5,11 @@ import { GraphQLClient } from 'graphql-request';
 import { metadataUploader } from '../utils';
 const CONNECTION_URL = process.env.SOLANA_ENDPOINT as string;
 
+export const heliusRpc = process.env.HELIUS_RPC;
+
 dotenv.config();
-//TODO:load from env
-export const RPC_CONNECTION = new Connection(
-  'https://mainnet.helius-rpc.com/?api-key=88368c93-dc7e-4637-9328-46fc7a414549',
-);
+
+export const RPC_CONNECTION = new Connection(heliusRpc);
 
 export const metaplex = new Metaplex(RPC_CONNECTION).use(bundlrStorage());
 

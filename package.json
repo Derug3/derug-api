@@ -36,6 +36,7 @@
     "@shadow-drive/sdk": "^4.0.0",
     "@solana/web3.js": "^1.73.3",
     "bn.js": "^5.2.1",
+    "bs58": "^5.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dayjs": "^1.11.7",
@@ -54,7 +55,8 @@
     "tweetnacl": "^1.0.3",
     "twitter-api-sdk": "^1.2.1",
     "twitter-api-v2": "^1.15.0",
-    "typeorm": "^0.3.16"
+    "typeorm": "^0.3.16",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -64,6 +66,7 @@
     "@types/jest": "28.1.4",
     "@types/node": "^16.0.0",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",

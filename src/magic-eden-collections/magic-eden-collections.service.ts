@@ -9,6 +9,7 @@ import { GetRandomCollections } from './so/get-random-collections';
 import { GetListings } from './so/get-collection-listings';
 import { GetSingleCollection } from './so/get-single-collection';
 import { GetAllCollections } from './so/get-all-collections';
+import { TensorService } from 'src/tensor/tensor.service';
 
 @Injectable()
 export class MagicEdenCollectionsService {
@@ -17,9 +18,13 @@ export class MagicEdenCollectionsService {
   private readonly getRandomCollections: GetRandomCollections;
   private readonly getByName: GetByName;
   private readonly getBySlug: GetSingleCollection;
+  private readonly tensorService: TensorService;
   private readonly getAllCollections: GetAllCollections;
   constructor(private readonly collectionRepository: CollectionRepository) {
-    this.getMagicEdenCron = new GetMagicEdenCron(collectionRepository);
+    this.getMagicEdenCron = new GetMagicEdenCron(
+      collectionRepository,
+      this.tensorService,
+    );
     this.getFlaggedCollections = new GetFlaggedCollections(
       collectionRepository,
     );
@@ -29,7 +34,7 @@ export class MagicEdenCollectionsService {
     this.getAllCollections = new GetAllCollections(collectionRepository);
   }
 
-  // @Cron('0 0 * * *')
+  @Cron('* * * * *')
   getMagicEdenFlaggedCollections() {
     this.getMagicEdenCron.execute();
   }

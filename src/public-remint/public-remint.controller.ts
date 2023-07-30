@@ -1,8 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import {
-  CandyMachineDto,
-  GetNftsByUpdateAuthority,
-} from './dto/candy-machine.dto';
+import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { PublicRemintService } from './public-remint.service';
 
@@ -27,9 +24,9 @@ export class PublicRemintController {
     return this.publicRemintService.getCandyMachineData(derugData);
   }
 
-  @Post('/save')
-  saveCandyMachine(@Body() candyMachine: CandyMachineDto) {
-    return this.publicRemintService.storeCandyMachineData(candyMachine);
+  @Get('/save/:derugData')
+  saveCandyMachine(@Param('derugData') derugData: string) {
+    return this.publicRemintService.storeCandyMachineData(derugData);
   }
 
   @Post('save-minted')

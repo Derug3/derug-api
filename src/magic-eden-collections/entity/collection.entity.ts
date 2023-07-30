@@ -1,5 +1,13 @@
 import { CollectionVolume } from 'src/collection-volume/entity/collection-volume.entity';
-import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
+import { NftTrait } from 'src/tensor/entities/traits.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { CollectionActivities } from './collection-activities.entity';
 
 @Entity()
@@ -39,4 +47,10 @@ export class Collection {
     (collectionVolume) => collectionVolume.collection,
   )
   collectionStats: CollectionVolume;
+
+  @ManyToOne(() => NftTrait, (trait) => trait.collection, {
+    eager: true,
+    nullable: true,
+  })
+  traits: NftTrait[];
 }

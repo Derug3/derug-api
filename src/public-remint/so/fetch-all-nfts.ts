@@ -9,6 +9,7 @@ import { remintConfigSeed } from 'src/utilities/constants';
 import {
   heliusMetadataEndpoint,
   heliusMintlistEndpoint,
+  heliusRpc,
   metaplex,
   RPC_CONNECTION,
   shadowDrive,
@@ -28,83 +29,75 @@ export class FetchAllNftsFromCollection {
   private logger = new Logger(FetchAllNftsFromCollection.name);
 
   async execute(
-    updateAuthority: string,
+    creator: string,
     derugData: string,
     txData: GetNftsByUpdateAuthority,
   ) {
     try {
       let queryFinished = false;
-      const mints: string[] = [];
+      let nfts: PublicRemint[] = [];
       let paginationToken: string | undefined = undefined;
-      while (!queryFinished) {
-        const respoonse = await fetch(heliusMintlistEndpoint, {
-          method: 'POST',
-          body: JSON.stringify({
-            query: {
-              firstVerifiedCreators: [updateAuthority],
-            },
-            options: {
-              limit: 10000,
-              paginationToken,
-            },
-          }),
-        });
-        const parsedResponse = await respoonse.json();
-
-        if (!parsedResponse.paginationToken) {
-          queryFinished = true;
-        }
-        paginationToken = parsedResponse.paginationToken;
-        parsedResponse.result.forEach((mint) => mints.push(mint.mint));
-      }
-
-      let allNfts: any[] = [];
-
-      const chunkedMints = chunk(mints, 100);
-
-      for (const mintsChunk of chunkedMints) {
-        const metadataList = await (
-          await fetch(heliusMetadataEndpoint, {
+      let page = 1;
+      let response: any;
+      const derugRequest = await derugProgram.account.derugRequest.fetch(
+        txData.derugRequest,
+      );
+      do {
+        response = (
+          await fetch(heliusRpc, {
             method: 'POST',
             body: JSON.stringify({
-              mintAccounts: mintsChunk,
-              includeOffChain: true,
+              jsonrpc: '2.0',
+              id: 'my-id',
+              method: 'getAssetsByCreator',
+              params: {
+                creatorAddress: creator,
+                onlyVerified: true,
+                page: page,
+                limit: 1000,
+              },
             }),
           })
         ).json();
+        page += 1;
+        response.result.items.forEach((res) => {
+          nfts.push({
+            creator: creator,
+            dateReminted: null,
+            derugData: derugData,
+            name: res.content.metadata.name,
+            newName:
+              derugRequest.newName +
+              ' #' +
+              res.content.metadata.name.split('#')[1],
+            hasReminted: false,
+            newSymbol: derugRequest.newSymbol,
+            newUri: res.content.json_uri,
+            uri: res.content.json_uri,
+            mint: res.id,
+            remintAuthority: derugRequest.derugger.toString(),
+          });
+        });
+      } while (response.result.items.length > 0);
 
-        metadataList.forEach((nft) => allNfts.push(nft));
-      }
-      this.logger.log(`Fetched ${allNfts.length} NFTs from Metadata program`);
+      this.logger.log(`Fetched ${nfts.length} NFTs from Metadata program`);
 
-      const derugDataAcc = await derugProgram.account.derugData.fetch(
-        new PublicKey(derugData),
-      );
+      const reminted = (
+        await derugProgram.account.remintProof.all([
+          {
+            memcmp: {
+              offset: 8,
+              bytes: new PublicKey(derugData).toBase58(),
+            },
+          },
+        ])
+      ).map((nft) => nft.account.oldMint.toString());
 
-      const derugRequest = await derugProgram.account.derugRequest.fetch(
-        new PublicKey(txData.derugRequest),
-      );
+      this.logger.log(`Fetched total reminted ${reminted.length} NFTs`);
 
-      // allNfts = allNfts.filter(
-      //   (nft) =>
-      //     nft.collection?.address.toString() ===
-      //       derugDataAcc.collection.toString() ||
-      //     nft.creators.find(
-      //       (c) => c.address.toString() === derugDataAcc.collection.toString(),
-      //     ),
-      // );
+      nfts = nfts.filter((nft) => !reminted.includes(nft.mint));
 
-      this.logger.log(
-        `Collection with ${allNfts.length} NFTs aftrer filtering!`,
-      );
-
-      const sortedRequests = derugDataAcc.activeRequests.sort(
-        (a, b) => a.voteCount - b.voteCount,
-      );
-
-      if (derugRequest.voteCount < sortedRequests[0].voteCount) {
-        throw new BadRequestException('Given derug request is not winning!');
-      }
+      this.logger.log(`Collection with ${nfts.length} NFTs aftrer filtering!`);
 
       const files: ShadowFile[] = [];
       const failed: string[] = [];
@@ -114,60 +107,14 @@ export class FetchAllNftsFromCollection {
       );
 
       if (existingMetadata.length === 0) {
-        for (const nft of allNfts) {
-          if (
-            !nft.onChainMetadata?.metadata ||
-            !nft.onChainMetadata.metadata?.data?.uri
-          ) {
-            failed.push(nft);
-            continue;
-          }
-
-          const nftData = await this.parseJsonMetadata(
-            derugRequest.newName,
-            derugRequest.newSymbol,
-            derugRequest.sellerFeeBps,
-            derugRequest.creators.map((c) => {
-              return {
-                address: c.address.toBase58(),
-                share: c.share,
-              };
-            }),
-
-            nft,
-          );
-          if (nftData) {
-            this.logger.verbose(`Parsed metadata for ${nftData?.name}`);
-
-            files.push(nftData.file);
-            if (nftData && nftData.name) {
-              const wallet = new Wallet(metadataUploader);
-
-              const shdw = await new ShdwDrive(RPC_CONNECTION, wallet).init();
-
-              const uploaded = await shdw.uploadFile(shadowDrive, nftData.file);
-
-              console.log(`Uploaded at ${uploaded.finalized_locations[0]}`);
-
-              await this.publicRemintRepo.storeAllCollectionNfts([
-                this.mapNftToRemintData(
-                  nft,
-                  derugData,
-                  //TODO:remove
-                  'Nice Mice ' + '#' + nftData.name,
-                  derugRequest.newSymbol,
-                  uploaded.finalized_locations[0],
-                ),
-              ]);
-              this.logger.log(`Stored in DB data for ${nftData.name}`);
-            }
-          } else {
-            this.logger.error(`Failed for: ${nft}`);
-          }
-        }
+        await this.publicRemintRepo.storeAllCollectionNfts(nfts);
       }
 
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
+      await this.initPrivateMint(
+        new PublicKey(derugData),
+        new PublicKey(txData.derugRequest),
+      );
     } catch (error) {
       console.log(error);
 
@@ -189,7 +136,7 @@ export class FetchAllNftsFromCollection {
     remintData.dateReminted = null;
     remintData.hasReminted = false;
     remintData.name = nft.onChainMetadata.metadata.data.name;
-    remintData.nftMetadata = nft.onChainMetadata.metadata.mint;
+    remintData.mint = nft.onChainMetadata.metadata.mint;
     remintData.remintAuthority = null;
     remintData.uri = nft.onChainMetadata.metadata.data.uri;
     remintData.creator = '';
@@ -199,46 +146,6 @@ export class FetchAllNftsFromCollection {
     remintData.newSymbol = newSymbol;
 
     return remintData;
-  }
-
-  async parseJsonMetadata(
-    newName: string,
-    newSymbol: string,
-    sellerFeeBps: number,
-    creators: { address: string; share: number }[],
-    nft: any,
-  ) {
-    try {
-      const jsonNft = await (
-        await fetch(nft.onChainMetadata?.metadata.data.uri)
-      ).json();
-      const newNftName = newName + ' #' + jsonNft.name?.split('#')[1];
-      this.logger.debug('Starting upload ' + newNftName);
-      const data = {
-        ...jsonNft,
-        symbol: newSymbol,
-        seller_fee_basis_points: sellerFeeBps,
-        name: newNftName,
-        external_url: 'https://derug.us',
-        creators: creators.map((c) => {
-          return {
-            address: c.address.toString(),
-            share: c.share,
-          };
-        }),
-      };
-
-      if (data.collection) {
-        data.collection.name = newName;
-      }
-
-      return {
-        file: uploadJson(JSON.stringify(data), newNftName.split('#')[1]),
-        name: newNftName.split('#')[1],
-      };
-    } catch (error) {
-      console.log('Failed to upload metadata for NFT', error);
-    }
   }
 
   async initPrivateMint(derugData: PublicKey, derugRequest: PublicKey) {
@@ -254,7 +161,6 @@ export class FetchAllNftsFromCollection {
           derugData,
           derugRequest,
           payer: metadataUploader.publicKey,
-          remintConfig,
         })
         .instruction();
 
@@ -274,12 +180,3 @@ export class FetchAllNftsFromCollection {
     }
   }
 }
-
-const uploadJson = (jsonData: string, name: string) => {
-  const file: ShadowFile = {
-    file: Buffer.from(jsonData),
-    name: `${name}.json`,
-  };
-
-  return file;
-};

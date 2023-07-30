@@ -4,6 +4,7 @@ import { TensorController } from './tensor.controller';
 
 @Module({
   controllers: [TensorController],
-  providers: [TensorService]
+  providers: [TensorService],
+  exports: [TensorService],
 })
 export class TensorModule {}
