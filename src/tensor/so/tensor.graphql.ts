@@ -14,6 +14,7 @@ import {
 import {
   ACTIVE_LISTINGS_QUERY,
   FP_QUERY,
+  makeTensorQuery,
   RECENT_ACTIVITIES_QUERY,
   TRAITS_QUERY,
 } from './query';
@@ -27,9 +28,32 @@ export const getFloorPrice = async (slug: string) => {
 };
 
 export const getTraits = async (slug: string) => {
-  const data = (await graphQLClient.request(TRAITS_QUERY, { slug })) as any;
+  const fpQueryBody = JSON.stringify({
+    query: FP_QUERY,
+    variables: {
+      slug: slug,
+    },
+  });
 
-  return mapTraitsQuery(data);
+  const fpData = await makeTensorQuery(fpQueryBody);
+
+  if (!fpData.data?.instrumentTV2) {
+    return null;
+  }
+
+  const requestBody = JSON.stringify({
+    query: TRAITS_QUERY,
+    variables: {
+      slug: fpData.data.instrumentTV2.slug,
+    },
+  });
+
+  const data = await makeTensorQuery(requestBody);
+
+  return {
+    traits: mapTraitsQuery(data.data),
+    tensorSlug: fpData.data.instrumentTV2.slug,
+  };
 };
 
 export const getListings = async (slug: string) => {
@@ -55,7 +79,6 @@ export const getListings = async (slug: string) => {
           }),
         })
       ).json();
-      console.log(heliusNfts[0].offChainMetadata.metadata.image);
 
       heliusNfts.forEach((nft) => {
         const relatedListing = listings.findIndex(

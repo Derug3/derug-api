@@ -10,16 +10,9 @@ import {
   ICollectionRecentActivities,
 } from '../dto/tensor.dto';
 
-export const mapTraitsQuery = (
-  data: any,
-  //   collection: ICollectionData
-): ITrait[] => {
+export const mapTraitsQuery = (data: any): ITrait[] => {
   const numTraits = data?.traits?.numMints ?? 0;
-  const traitData: ITraitInfo[] = [];
-  if (!data || !data.traits) {
-    return [];
-  }
-  //   collection.numMints = numTraits;
+
   const trait: ITrait[] = [];
 
   Object.keys(data.traits.traitMeta).forEach((traitMeta) => {

@@ -30,4 +30,9 @@ export class MagicEdenCollectionsController {
   getAllCollections() {
     return this.magicEdenCollectionsService.getAllCollectionsSlugs();
   }
+
+  @Get('/all-collections')
+  getAllCollectionsData() {
+    return this.magicEdenCollectionsService.getAllCollectionsData();
+  }
 }

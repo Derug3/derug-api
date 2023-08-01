@@ -13,15 +13,14 @@ import { CollectionActivities } from './collection-activities.entity';
 
 @Entity()
 export class Collection {
-
-  @PrimaryGeneratedColumn('uuid')
-  id: string;  
-
-  @Column({nullable: true})
+  @PrimaryColumn()
   symbol: string;
 
   @Column()
   image: string;
+
+  @Column({ nullable: true })
+  tensorSlug: string;
 
   @Column({ nullable: true })
   name: string;
@@ -53,9 +52,10 @@ export class Collection {
   )
   collectionStats: CollectionVolume;
 
-  @ManyToOne(() => NftTrait, (trait) => trait.collection, {
+  @OneToMany(() => NftTrait, (trait) => trait.collection, {
     eager: true,
     nullable: true,
+    cascade: ['insert'],
   })
   traits: NftTrait[];
 }

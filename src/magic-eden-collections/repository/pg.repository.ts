@@ -7,8 +7,22 @@ export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository
 {
+  getAllCollectionsData(): Promise<Collection[]> {
+    return this.repository.find();
+  }
+  async updateTensorSlug(slug: string, tensorSlug: string): Promise<boolean> {
+    const response = await this.repository.update(
+      { symbol: slug },
+      { tensorSlug },
+    );
+
+    return response.affected === 1;
+  }
   getBySlug(slug: string): Promise<Collection> {
-    return this.repository.findOne({ where: { symbol: slug } });
+    return this.createQueryBuilder('collection')
+      .leftJoinAndSelect('collection.traits', 'traits')
+      .where('collection.symbol=:slug', { slug })
+      .getOne();
   }
   async getAllCollections(): Promise<Collection[]> {
     return await this.repository.find();

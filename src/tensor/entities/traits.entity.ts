@@ -1,6 +1,11 @@
 import { Collection } from 'src/magic-eden-collections/entity/collection.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { TraitData } from './trait_data.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class NftTrait {
@@ -8,10 +13,15 @@ export class NftTrait {
   nftTraitId: string;
   @Column()
   name: string;
-  @ManyToOne(() => TraitData, (traitData) => traitData.trait, { eager: true })
+  @Column({ type: 'jsonb' })
   traits: TraitData[];
-  @ManyToOne(() => Collection, (collection) => collection.traits, {
-    // eager: true,
-  })
+  @ManyToOne(() => Collection, (collection) => collection.traits)
   collection: Collection;
+}
+
+export class TraitData {
+  traitId: string;
+  name: string;
+  image: string;
+  percentage: number;
 }

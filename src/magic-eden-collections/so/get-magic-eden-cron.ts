@@ -9,9 +9,7 @@ import {
 } from 'src/utilities/constants';
 import { Logger } from '@nestjs/common';
 import { TensorService } from 'src/tensor/tensor.service';
-import { NftTrait } from 'src/tensor/entities/traits.entity';
-import { v4 } from 'uuid';
-import { TraitData } from 'src/tensor/entities/trait_data.entity';
+import { getTraits } from 'src/tensor/so/tensor.graphql';
 export class GetMagicEdenCron {
   constructor(
     private readonly collectionRepo: CollectionRepository,
@@ -24,6 +22,7 @@ export class GetMagicEdenCron {
     let offset = 0;
     const limit = 500;
     let response: undefined | any;
+    let shouldFetch = true;
     do {
       try {
         response = (await (
@@ -31,20 +30,27 @@ export class GetMagicEdenCron {
             `${MAGIC_EDEN_API}${COLLECTIONS}?${OFFSET}=${offset}&${LIMIT}=${limit}`,
           )
         ).json()) as any;
-        const flaggedCollections = await this.filterResponse(
-          response,
-          this.logger,
-        );
-        if (flaggedCollections && flaggedCollections.length > 0) {
-          try {
-            await this.collectionRepo.saveCollectionBatch(flaggedCollections);
-          } catch (error) {
-            console.log(error);
-          }
+
+        if (shouldFetch) {
+          const filteredCollections = await this.filterResponse(
+            response,
+            this.logger,
+          );
+          await this.collectionRepo.saveCollectionBatch(filteredCollections);
         }
-        this.logger.debug(
-          `Saved batch of ${flaggedCollections.length} flagged NFTs`,
-        );
+
+        shouldFetch = false;
+
+        // if (filteredCollections && filteredCollections.length > 0) {
+        //   try {
+        //     await this.collectionRepo.saveCollectionBatch(filteredCollections);
+        //   } catch (error) {
+        //     console.log(error);
+        //   }
+        // }
+        // this.logger.debug(
+        //   `Saved batch of ${filteredCollections.length} flagged NFTs`,
+        // );
 
         offset += response.length;
       } catch (error) {
@@ -58,39 +64,22 @@ export class GetMagicEdenCron {
   async filterResponse(response: Collection[], logger: Logger) {
     try {
       if (response.filter) {
-        const flaggedCollections = await Promise.all(
-          response
-            .filter((c) => !!c.isFlagged && c.symbol) 
-            .map(async (ac) => {
-              try {
-                const traits: NftTrait[] = (
-                  await this.tensorService.getTraitsTensor(ac.symbol)
-                ).map((trait) => {
-                  const nftTrait = new NftTrait();
-                  nftTrait.collection = ac;
-                  nftTrait.name = trait.name;
-                  nftTrait.nftTraitId = v4();
-                  const traits: TraitData[] = trait.values.map((t) => {
-                    return {
-                      image: t.image,
-                      trait: nftTrait,
-                      name: t.name,
-                      percentage: t.percentage,
-                      traitId: v4(),
-                    };
-                  });
-                  nftTrait.traits = traits;
-                  return nftTrait;
-                });
-              } catch (error) {
-                this.logger.error(error.message);
-                return ac;
+        try {
+          const flaggedCollections: Collection[] = await Promise.all(
+            response.map(async (res, index) => {
+              if (index === 0) {
+                const traits = await getTraits(res.symbol);
               }
+              return { ...res };
+              // }
             }),
-        );
-
-        return flaggedCollections;
+          );
+          return flaggedCollections;
+        } catch (error) {
+          console.log(error);
+        }
       }
+
       return [];
     } catch (error) {
       logger.error('Failed to save records to database:' + error.message);

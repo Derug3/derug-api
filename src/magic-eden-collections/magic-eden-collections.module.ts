@@ -5,8 +5,6 @@ import { CollectionRepository } from './repository/collection.reposity';
 import { PgRepository } from './repository/pg.repository';
 import { Connection } from 'typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CollectionActivitiesRepository } from './repository/activities/activities.repository';
-import { PgRepositoryActivities } from './repository/activities/pg.repository';
 import { TensorModule } from 'src/tensor/tensor.module';
 
 @Module({
@@ -20,5 +18,6 @@ import { TensorModule } from 'src/tensor/tensor.module';
       inject: [Connection],
     },
   ],
+  exports: [MagicEdenCollectionsService],
 })
 export class MagicEdenCollectionsModule {}

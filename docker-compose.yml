@@ -27,7 +27,7 @@ services:
       -  derug-db
   pgadmin:
     image: dpage/pgadmin4:4.30
-    container_name: pgadmin
+    container_name: derug-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@develop.com
       PGADMIN_DEFAULT_PASSWORD: admin

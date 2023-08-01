@@ -18,6 +18,9 @@ export const graphQLClient = new GraphQLClient(
   'https://graphql.tensor.trade/graphql',
 );
 
+export const magicEdneCheckUrl =
+  'https://api-mainnet.magiceden.io/collection_flags/check/';
+
 export const heliusMetadataEndpoint = process.env.HELIUS_METADATA_RPC!;
 
 export const heliusMintlistEndpoint = process.env.HELIUS_MINTLIST_RPC!;
@@ -32,3 +35,5 @@ export function parseKeypair(secretKey: string) {
   const decoded = decode(secretKey);
   return Keypair.fromSecretKey(decoded);
 }
+
+export const railwayUrl = process.env.RAILWAY_URL!;

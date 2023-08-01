@@ -18,7 +18,6 @@ export const TRAITS_QUERY = `
     __typename
   }
 `;
-
 export const FP_QUERY = `
   query Instrument($slug: String!) {
     instrumentTV2(slug: $slug) {
@@ -67,7 +66,6 @@ export const FP_QUERY = `
       ...ReducedStatsSwap
       __typename
     }
-    meFloorPrice
     firstListDate
     __typename
   }
@@ -326,3 +324,23 @@ export const makeNextQuery = async (
     nextQueryData: mapNextData(data.data),
   };
 };
+
+export async function makeTensorQuery(requestBody: string) {
+  const TENSOR_API_KEY = '07df84c8-af4f-4555-8d2a-767a728be88f';
+
+  const tensorApiConfig = {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-TENSOR-API-KEY': TENSOR_API_KEY,
+      'Access-Control-Allow-Origin': '*',
+    },
+  };
+
+  const response = await fetch('https://api.tensor.so/graphql', {
+    method: 'POST',
+    headers: tensorApiConfig.headers,
+    body: requestBody,
+  });
+
+  return await response.json();
+}
