@@ -15,12 +15,15 @@ import { Cron } from '@nestjs/schedule';
 import { NftTraitRepository } from './nft_trait.repository';
 @Injectable()
 export class TensorService {
+  slugs: string[];
   constructor(
     @Inject(forwardRef(() => MagicEdenCollectionsService))
     private readonly collectionService: MagicEdenCollectionsService,
     @InjectRepository(NftTraitRepository)
     private readonly traitsRepo: NftTraitRepository,
-  ) {}
+  ) {
+    this.slugs = [];
+  }
   logger = new Logger(TensorService.name);
   getFloorPriceTensor(slug: string) {
     return getFloorPrice(slug);
@@ -34,8 +37,12 @@ export class TensorService {
     const storedTraits = traits.map((s) => s.collection.symbol);
 
     const filteredSlugs = allSlugs
-      .filter((s) => !storedTraits.includes(s.symbol))
+      .filter(
+        (s) =>
+          !this.slugs.includes(s.symbol) || !storedTraits.includes(s.symbol),
+      )
       .slice(0, 10);
+    this.slugs = [...this.slugs, ...filteredSlugs.map((fs) => fs.symbol)];
     const newTraits: NftTrait[] = [];
     this.logger.log(`Starting cron for tensor traits`);
     await Promise.all(
