@@ -42,11 +42,8 @@ export class TensorService {
       filteredSlugs.map(async (fs) => {
         try {
           const data = await getTraits(fs.symbol);
+          await this.collectionService.updateTensorSlug(slug, data.tensorSlug);
           if (data) {
-            await this.collectionService.updateTensorSlug(
-              slug,
-              data.tensorSlug,
-            );
             data.traits.forEach((t) => {
               const nftTrait = new NftTrait();
               nftTrait.name = t.name;
@@ -62,6 +59,12 @@ export class TensorService {
               nftTrait.traits = traits;
               newTraits.push(nftTrait);
             });
+          } else {
+            const nftTrait = new NftTrait();
+            nftTrait.nftTraitId = v4();
+            nftTrait.collection = fs;
+            nftTrait.traits = [];
+            nftTrait.name = data.tensorSlug;
           }
         } catch (error) {
           console.log(error);
