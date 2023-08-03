@@ -71,7 +71,12 @@ export class TensorService {
             newTraits.push(nftTrait);
           }
         } catch (error) {
-          console.log(error);
+          const nftTrait = new NftTrait();
+          nftTrait.nftTraitId = v4();
+          nftTrait.collection = fs;
+          nftTrait.traits = [];
+          nftTrait.name = '';
+          newTraits.push(nftTrait);
         }
       }),
     );
