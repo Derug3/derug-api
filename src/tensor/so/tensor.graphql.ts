@@ -49,6 +49,7 @@ export const getTraits = async (slug: string) => {
   });
 
   const data = await makeTensorQuery(requestBody);
+  console.log(data);
 
   return {
     traits: mapTraitsQuery(data.data),
