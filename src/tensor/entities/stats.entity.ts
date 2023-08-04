@@ -9,15 +9,15 @@ export class CollectionStats {
   marketCap: string;
   @Column({ nullable: true })
   volume24H: string;
-  @Column()
+  @Column({ nullable: true })
   numListed: number;
-  @Column()
+  @Column({ nullable: true })
   numMints: number;
-  @Column({ type: 'float' })
+  @Column({ type: 'float', nullable: true })
   royalty: number;
-  @Column({ type: 'float' })
+  @Column({ type: 'float', nullable: true })
   fp: number;
-  @Column({ type: 'bigint' })
+  @Column({ type: 'bigint', nullable: true })
   firstListed: number;
   @Column()
   symbol: string;
