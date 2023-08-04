@@ -14,7 +14,7 @@ export class CollectionListing {
   mint: string;
   @Column({ type: 'enum', enum: ListingSource })
   soruce: ListingSource;
-  @Column()
+  @Column({ nullable: true })
   imageUrl: string;
   @Column({ type: 'bigint' })
   txAt: number;
