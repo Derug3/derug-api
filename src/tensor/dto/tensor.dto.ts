@@ -123,4 +123,5 @@ export enum ListingSource {
   Tensor = 'TENSORSWAP',
   Hades = 'HADESWAP',
   SolanaArt = 'SOLANART',
+  Hyperspace = 'HYPERSPACE',
 }

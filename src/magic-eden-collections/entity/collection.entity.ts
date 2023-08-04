@@ -1,4 +1,5 @@
 import { CollectionVolume } from 'src/collection-volume/entity/collection-volume.entity';
+import { CollectionListing } from 'src/tensor/entities/listing.entity';
 import { CollectionStats } from 'src/tensor/entities/stats.entity';
 import { NftTrait } from 'src/tensor/entities/traits.entity';
 import {
@@ -47,6 +48,9 @@ export class Collection {
   @Column()
   isFlagged: boolean;
 
+  @OneToMany(() => CollectionListing, (listings) => listings.collection)
+  collectionListing: CollectionListing[];
+
   @OneToMany(() => CollectionActivities, (activities) => activities.collection)
   activities: CollectionActivities[];
 
@@ -62,7 +66,4 @@ export class Collection {
     cascade: ['insert'],
   })
   traits: NftTrait[];
-
-  @OneToOne(() => CollectionStats)
-  stats: CollectionStats;
 }

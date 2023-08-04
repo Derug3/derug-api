@@ -6,7 +6,7 @@ import { ListingSource } from '../dto/tensor.dto';
 export class CollectionListing {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column()
+  @Column({ type: 'float' })
   price: number;
   @Column()
   owner: string;
@@ -16,7 +16,7 @@ export class CollectionListing {
   soruce: ListingSource;
   @Column()
   imageUrl: string;
-  @Column()
+  @Column({ type: 'bigint' })
   txAt: number;
   @Column()
   name: string;

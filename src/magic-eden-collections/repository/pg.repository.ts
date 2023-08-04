@@ -25,7 +25,6 @@ export class PgRepository
   getBySlug(slug: string): Promise<Collection> {
     return this.createQueryBuilder('collection')
       .leftJoinAndSelect('collection.traits', 'traits')
-      .leftJoinAndSelect('collection.stats', 'stats')
       .where('collection.symbol=:slug', { slug })
       .getOne();
   }

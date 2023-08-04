@@ -58,21 +58,25 @@ export const getTensorCollectionData = async (
   const data = await makeTensorQuery(requestBody);
 
   return {
-    traits: mapTraitsQuery(data.data),
+    traits: mapTraitsQuery(data.data, collection),
     tensorSlug: fpData.data.instrumentTV2.slug,
     stats,
   };
 };
 
 export const getListings = async (slug: string, collection: Collection) => {
-  const data = (await graphQLClient.request(ACTIVE_LISTINGS_QUERY, {
-    slug,
-    filters: null,
-    sortBy: 'PriceAsc',
-    limit: 100,
-  })) as any;
+  const query = JSON.stringify({
+    query: ACTIVE_LISTINGS_QUERY,
+    variables: {
+      slug,
+      filters: null,
+      sortBy: 'PriceAsc',
+      limit: 100,
+    },
+  });
+  const data = await makeTensorQuery(query);
 
-  const listings = mapCollectionListings(data, collection);
+  const listings = mapCollectionListings(data.data, collection);
   const nullImageListings = listings.filter((l) => l.imageUrl === null);
 
   if (nullImageListings.length > 0) {

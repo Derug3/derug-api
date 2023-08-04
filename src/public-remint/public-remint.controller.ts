@@ -35,10 +35,10 @@ export class PublicRemintController {
     return this.publicRemintService.saveReminted(minted.mint, minted.reminter);
   }
 
-  @Get('/metadata/:oldMetadata')
-  getPrivateMintMetadta(@Param('oldMetadata') oldMetadata: string) {
-    return this.publicRemintService.getNftData(oldMetadata);
-  }
+  // @Get('/metadata/:oldMetadata')
+  // getPrivateMintMetadta(@Param('oldMetadata') oldMetadata: string) {
+  //   return this.publicRemintService.getNftData(oldMetadata);
+  // }
 
   @Post('/initialize')
   initializeCandyMachine(@Body() initCandyMachineDto: InitMachineRequestDto) {

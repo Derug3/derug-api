@@ -5,20 +5,22 @@ import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 export class CollectionStats {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column()
-  marketCap: number;
-  @Column()
-  volume24H: number;
+  @Column({ nullable: true })
+  marketCap: string;
+  @Column({ nullable: true })
+  volume24H: string;
   @Column()
   numListed: number;
   @Column()
   numMints: number;
-  @Column()
+  @Column({ type: 'float' })
   royalty: number;
-  @Column()
+  @Column({ type: 'float' })
   fp: number;
-  @Column()
+  @Column({ type: 'bigint' })
   firstListed: number;
-  @OneToOne(() => Collection)
-  collection: Collection;
+  @Column()
+  symbol: string;
+  //   @OneToOne(() => Collection, (collection) => collection.stats)
+  //   collection: Collection;
 }

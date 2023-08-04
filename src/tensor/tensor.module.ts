@@ -7,6 +7,7 @@ import { NftTraitRepository } from './repository/nft_trait.repository';
 import { Repository } from 'typeorm';
 import { StatsRepository } from './repository/stats.repository';
 import { ListingRepository } from './repository/listing.repository';
+import { CronDataRepository } from './repository/cron_data.repository';
 
 @Module({
   imports: [forwardRef(() => MagicEdenCollectionsModule)],
@@ -16,6 +17,7 @@ import { ListingRepository } from './repository/listing.repository';
     NftTraitRepository,
     StatsRepository,
     ListingRepository,
+    CronDataRepository,
   ],
   exports: [TensorService],
 })

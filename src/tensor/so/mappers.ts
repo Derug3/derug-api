@@ -13,16 +13,26 @@ import {
 } from '../dto/tensor.dto';
 import { CollectionListing } from '../entities/listing.entity';
 import { CollectionStats } from '../entities/stats.entity';
+import { NftTrait } from '../entities/traits.entity';
 
-export const mapTraitsQuery = (data: any): ITrait[] => {
+export const mapTraitsQuery = (
+  data: any,
+  collection: Collection,
+): NftTrait[] => {
   const numTraits = data?.traits?.numMints ?? 0;
 
-  const trait: ITrait[] = [];
+  const trait: NftTrait[] = [];
+
+  if (!data || !data.traits) {
+    return [];
+  }
 
   Object.keys(data.traits.traitMeta).forEach((traitMeta) => {
     trait.push({
       name: traitMeta,
-      values: Object.keys(data.traits.traitMeta[traitMeta]).map(
+      collection,
+      nftTraitId: v4(),
+      traits: Object.keys(data.traits.traitMeta[traitMeta]).map(
         (singleTrait: any) => {
           return {
             name: singleTrait,
@@ -34,6 +44,7 @@ export const mapTraitsQuery = (data: any): ITrait[] => {
               ),
               2,
             ),
+            traitId: v4(),
             fp: data.traits.traitActive[traitMeta]?.singleTrait
               ? data.traits.traitActive[traitMeta][singleTrait].p
               : 0,
@@ -58,24 +69,30 @@ export const mapCollectionStats = (
   if (dataInfo)
     return {
       firstListed: dataInfo.firstListDate,
-      marketCap: +dataInfo.statsOverall.marketCap,
+      marketCap: dataInfo.statsOverall.marketCap,
       numListed: dataInfo.statsOverall.numListed,
       numMints: dataInfo.statsOverall.numMints,
-      collection,
+      symbol: collection.symbol,
       fp: +dataInfo.statsOverall.floorPrice,
       volume24H: dataInfo.statsOverall.floor24h,
       royalty: dataInfo.sellRoyaltyFeeBPS / 100,
       id: v4(),
     };
 };
-
 export const mapCollectionListings = (
   data: any,
   collection: Collection,
 ): CollectionListing[] => {
+  if (!data.activeListingsV2) {
+    return [];
+  }
   const nftListings: CollectionListing[] = [];
 
-  data.activeListings.txs.forEach((p: any) => {
+  if (!data?.activeListingsV2) {
+    return [];
+  }
+
+  data.activeListingsV2.txs.forEach((p: any) => {
     nftListings.push({
       mint: p.mint.onchainId,
       owner: p.tx.sellerId,

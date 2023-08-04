@@ -9,7 +9,7 @@ import {
 } from 'src/utilities/constants';
 import { Logger } from '@nestjs/common';
 import { TensorService } from 'src/tensor/tensor.service';
-import { getTraits } from 'src/tensor/so/tensor.graphql';
+
 export class GetMagicEdenCron {
   constructor(
     private readonly collectionRepo: CollectionRepository,
@@ -68,7 +68,6 @@ export class GetMagicEdenCron {
           const flaggedCollections: Collection[] = await Promise.all(
             response.map(async (res, index) => {
               if (index === 0) {
-                const traits = await getTraits(res.symbol);
               }
               return { ...res };
               // }

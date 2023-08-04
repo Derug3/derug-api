@@ -110,10 +110,10 @@ export const ACTIVE_LISTINGS_QUERY = `
     $slug: String!
     $sortBy: ActiveListingsSortBy!
     $filters: ActiveListingsFilters
-    $cursor: ActiveListingsCursorInput
+    $cursor: ActiveListingsCursorInputV2
     $limit: Int
   ) {
-    activeListings(
+    activeListingsV2(
       slug: $slug
       sortBy: $sortBy
       filters: $filters
@@ -125,10 +125,8 @@ export const ACTIVE_LISTINGS_QUERY = `
         __typename
       }
       sortBy
-      generatedFor
       page {
         endCursor {
-          txKey
           __typename
         }
         hasMore
@@ -152,7 +150,7 @@ export const ACTIVE_LISTINGS_QUERY = `
 
   fragment ReducedParsedTx on ParsedTransaction {
     source
-    txKey
+
     txId
     txType
     grossAmount
@@ -218,7 +216,6 @@ export const RECENT_ACTIVITIES_QUERY = `
       page {
         endCursor {
           txAt
-          txKey
           __typename
         }
         hasMore
@@ -320,7 +317,7 @@ export const makeNextQuery = async (
   )) as any;
 
   return {
-    nfts: mapCollectionListings(data.data),
+    nfts: [],
     nextQueryData: mapNextData(data.data),
   };
 };

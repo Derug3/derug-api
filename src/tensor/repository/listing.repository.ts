@@ -8,7 +8,7 @@ export class ListingRepository extends Repository<CollectionListing> {
     super(CollectionListing, dataSource.createEntityManager());
   }
 
-  async saveStats(collectionListing: CollectionListing) {
+  async saveStats(collectionListing: CollectionListing[]) {
     await this.save(collectionListing);
   }
 }
