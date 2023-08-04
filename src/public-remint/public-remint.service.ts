@@ -5,6 +5,7 @@ import {
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
+import { MagicEdenCollectionsService } from 'src/magic-eden-collections/magic-eden-collections.service';
 import { setupCandyMachine } from 'src/utilities/candyMachine';
 import { parseKeypair } from 'src/utilities/solana/utilities';
 import { checkIfMessageIsSigned, derugProgram } from 'src/utilities/utils';
@@ -19,14 +20,13 @@ import { FetchAllNftsFromCollection } from './so/fetch-all-nfts';
 import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
 import { GetPrivateMintNftData } from './so/get-private-mint-nft-data';
-import { InitCandyMachine } from './so/init-candy-machine';
 import { RemintNft } from './so/remint_nft.so';
 import { SavePublicMintData } from './so/save-public-mint';
 import { UpdateMintedNft } from './so/update-minted-nft';
 import { UpdateReminted } from './so/update-reminted';
 
 @Injectable()
-export class PublicRemintService implements OnModuleInit {
+export class PublicRemintService {
   private fetchAllNfts: FetchAllNftsFromCollection;
   private updateReminted: UpdateReminted;
   private getNonMinted: GetNonMinted;
@@ -40,6 +40,7 @@ export class PublicRemintService implements OnModuleInit {
     private readonly publicRemintRepo: PublicRemintRepository,
     private readonly candyMachineRepo: CandyMachineRepository,
     private readonly wlService: WalletWlService,
+    private readonly collectionService: MagicEdenCollectionsService,
   ) {
     this.fetchAllNfts = new FetchAllNftsFromCollection(publicRemintRepo);
     this.updateReminted = new UpdateReminted(publicRemintRepo);
@@ -47,6 +48,7 @@ export class PublicRemintService implements OnModuleInit {
     this.savePublicMintData = new SavePublicMintData(
       candyMachineRepo,
       this.authorityRepo,
+      this.collectionService,
     );
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
@@ -54,20 +56,6 @@ export class PublicRemintService implements OnModuleInit {
     this.remintNft = new RemintNft();
   }
   private readonly logger = new Logger(PublicRemintService.name);
-  async onModuleInit() {
-    this.logger.debug(
-      `Subscribed to event listener ${derugProgram.programId.toString()}`,
-    );
-    derugProgram.addEventListener('NftRemintedEvent', async (data) => {
-      try {
-        await this.updateMintedNft.execute(
-          data.oldNftMint.toString(),
-          data.reminter.toString(),
-        );
-        this.logger.debug(`Minted NFT:${data.oldNftMint.toString()}`);
-      } catch (error) {}
-    });
-  }
 
   fetchAllNftsFromCollection(tx: GetNftsByUpdateAuthority) {
     return this.fetchAllNfts.execute(tx.creator, tx.derugData, tx);
@@ -91,10 +79,6 @@ export class PublicRemintService implements OnModuleInit {
 
   getCandyMachineData(derugData: string) {
     return this.getCandyMachine.execute(derugData);
-  }
-
-  getNftData(metadata: string) {
-    return this.getPrivateMintNftData.execute(metadata);
   }
 
   async initCandyMacihine(dto: InitMachineRequestDto) {

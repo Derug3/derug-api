@@ -1,6 +1,8 @@
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import dayjs from 'dayjs';
 import { divide, multiply, round } from 'mathjs';
+import { Collection } from 'src/magic-eden-collections/entity/collection.entity';
+import { v4 } from 'uuid';
 import {
   ITrait,
   ITraitInfo,
@@ -9,6 +11,8 @@ import {
   ListingSource,
   ICollectionRecentActivities,
 } from '../dto/tensor.dto';
+import { CollectionListing } from '../entities/listing.entity';
+import { CollectionStats } from '../entities/stats.entity';
 
 export const mapTraitsQuery = (data: any): ITrait[] => {
   const numTraits = data?.traits?.numMints ?? 0;
@@ -46,7 +50,10 @@ export const mapTraitsQuery = (data: any): ITrait[] => {
   return trait;
 };
 
-export const mapCollectionStats = (data: any): ICollectionStats | undefined => {
+export const mapCollectionStats = (
+  data: any,
+  collection: Collection,
+): CollectionStats | undefined => {
   const dataInfo = data.instrumentTV2;
   if (dataInfo)
     return {
@@ -54,15 +61,19 @@ export const mapCollectionStats = (data: any): ICollectionStats | undefined => {
       marketCap: +dataInfo.statsOverall.marketCap,
       numListed: dataInfo.statsOverall.numListed,
       numMints: dataInfo.statsOverall.numMints,
+      collection,
       fp: +dataInfo.statsOverall.floorPrice,
       volume24H: dataInfo.statsOverall.floor24h,
       royalty: dataInfo.sellRoyaltyFeeBPS / 100,
-      slug: dataInfo.id,
+      id: v4(),
     };
 };
 
-export const mapCollectionListings = (data: any): INftListing[] => {
-  const nftListings: INftListing[] = [];
+export const mapCollectionListings = (
+  data: any,
+  collection: Collection,
+): CollectionListing[] => {
+  const nftListings: CollectionListing[] = [];
 
   data.activeListings.txs.forEach((p: any) => {
     nftListings.push({
@@ -73,6 +84,8 @@ export const mapCollectionListings = (data: any): INftListing[] => {
       imageUrl: p.mint.imageUri,
       txAt: p.tx.txAt,
       name: p.mint.name,
+      id: v4(),
+      collection,
     });
   });
 

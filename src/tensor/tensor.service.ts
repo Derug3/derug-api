@@ -6,13 +6,16 @@ import { NftTrait, TraitData } from './entities/traits.entity';
 import {
   getFloorPrice,
   getListings,
-  getTraits,
+  getTensorCollectionData,
   recentActivities,
 } from './so/tensor.graphql';
 import { v4 } from 'uuid';
 
 import { Cron } from '@nestjs/schedule';
-import { NftTraitRepository } from './nft_trait.repository';
+import { NftTraitRepository } from './repository/nft_trait.repository';
+import { ListingRepository } from './repository/listing.repository';
+import { StatsRepository } from './repository/stats.repository';
+import { Collection } from 'src/magic-eden-collections/entity/collection.entity';
 @Injectable()
 export class TensorService {
   slugs: string[];
@@ -21,81 +24,22 @@ export class TensorService {
     private readonly collectionService: MagicEdenCollectionsService,
     @InjectRepository(NftTraitRepository)
     private readonly traitsRepo: NftTraitRepository,
+    @InjectRepository(ListingRepository)
+    private readonly listingRepo: ListingRepository,
+    @InjectRepository(StatsRepository)
+    private readonly statsRepo: StatsRepository,
   ) {
     this.slugs = [];
   }
   logger = new Logger(TensorService.name);
-  getFloorPriceTensor(slug: string) {
-    return getFloorPrice(slug);
-  }
 
-  @Cron('* * * * *')
-  async getTraitsTensor(slug: string) {
+  // @Cron('* * * * *')
+  async getTensorCollectionData(slug: string) {
     const allSlugs = await this.collectionService.getAllCollectionsSlugs();
-    const traits = await this.traitsRepo.fetchTraitsWithCollections();
-
-    const storedTraits = traits.map((s) => s.collection.symbol);
-
-    const filteredSlugs = allSlugs
-      .filter(
-        (s) =>
-          !this.slugs.includes(s.symbol) || !storedTraits.includes(s.symbol),
-      )
-      .slice(0, 10);
-    this.slugs = [...this.slugs, ...filteredSlugs.map((fs) => fs.symbol)];
-    const newTraits: NftTrait[] = [];
-    this.logger.log(`Starting cron for tensor traits`);
-    await Promise.all(
-      filteredSlugs.map(async (fs) => {
-        try {
-          const data = await getTraits(fs.symbol);
-          if (data) {
-            await this.collectionService.updateTensorSlug(
-              slug,
-              data.tensorSlug,
-            );
-            data.traits.forEach((t) => {
-              const nftTrait = new NftTrait();
-              nftTrait.name = t.name;
-              nftTrait.collection = fs;
-              nftTrait.nftTraitId = v4();
-
-              const traits: TraitData[] = t.values.map((t) => ({
-                image: t.image,
-                name: t.name,
-                percentage: Number(t.percentage),
-                traitId: v4(),
-              }));
-              nftTrait.traits = traits;
-              newTraits.push(nftTrait);
-            });
-          } else {
-            const nftTrait = new NftTrait();
-            nftTrait.nftTraitId = v4();
-            nftTrait.collection = fs;
-            nftTrait.traits = [];
-            nftTrait.name = data.tensorSlug;
-            newTraits.push(nftTrait);
-          }
-        } catch (error) {
-          const nftTrait = new NftTrait();
-          nftTrait.nftTraitId = v4();
-          nftTrait.collection = fs;
-          nftTrait.traits = [];
-          nftTrait.name = '';
-          newTraits.push(nftTrait);
-        }
-      }),
-    );
-    this.logger.log(
-      `Finished cron for nft traits.Storing ${newTraits.length} traits in DB!`,
-    );
-
-    await this.traitsRepo.save(newTraits);
   }
 
-  getTensorListings(slug: string) {
-    return getListings(slug);
+  getTensorListings(slug: string, collection: Collection) {
+    return getListings(slug, collection);
   }
 
   getTensorRecentActivities(slug: string) {

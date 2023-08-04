@@ -32,7 +32,7 @@ export class MagicEdenCollectionsService implements OnModuleInit {
   logger = new Logger(MagicEdenCollectionsService.name);
   constructor(
     private readonly collectionRepository: CollectionRepository,
-    // @Inject(forwardRef(() => TensorService))
+
     private readonly tensorService: TensorService,
   ) {
     this.getMagicEdenCron = new GetMagicEdenCron(
@@ -110,5 +110,9 @@ export class MagicEdenCollectionsService implements OnModuleInit {
 
   getAllCollectionsData() {
     return this.collectionRepository.getAllCollectionsData();
+  }
+
+  async initCollectionDerug(symbol: string) {
+    await this.collectionRepository.initCollectionDerug(symbol);
   }
 }

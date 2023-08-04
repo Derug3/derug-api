@@ -7,13 +7,14 @@ import { PgPublicRemint } from './repository/public-remint.pg.repository';
 import { CandyMachineRepository } from './repository/candy-machine.repository';
 import { CandyMachineDataPgRepository } from './repository/candy-machine.pg.repository';
 import { WalletWlModule } from 'src/wallet_wl/wallet_wl.module';
+import { MagicEdenCollectionsModule } from 'src/magic-eden-collections/magic-eden-collections.module';
 
 @Module({
   controllers: [PublicRemintController],
-  imports: [WalletWlModule],
+  imports: [WalletWlModule, MagicEdenCollectionsModule],
   providers: [
     PublicRemintService,
-    
+
     {
       provide: PublicRemintRepository,
       useFactory: (conn: Connection) =>

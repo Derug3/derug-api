@@ -1,4 +1,5 @@
 import { CollectionVolume } from 'src/collection-volume/entity/collection-volume.entity';
+import { CollectionStats } from 'src/tensor/entities/stats.entity';
 import { NftTrait } from 'src/tensor/entities/traits.entity';
 import {
   Column,
@@ -24,6 +25,9 @@ export class Collection {
 
   @Column({ nullable: true })
   name: string;
+
+  @Column({ default: false })
+  hasActiveDerug: boolean;
 
   @Column({ nullable: true })
   description: string;
@@ -58,4 +62,7 @@ export class Collection {
     cascade: ['insert'],
   })
   traits: NftTrait[];
+
+  @OneToOne(() => CollectionStats)
+  stats: CollectionStats;
 }

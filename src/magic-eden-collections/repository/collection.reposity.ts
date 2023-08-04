@@ -11,4 +11,5 @@ export abstract class CollectionRepository {
   abstract getBySlug(slug: string): Promise<Collection>;
   abstract updateTensorSlug(slug: string, tensorSlug: string): Promise<boolean>;
   abstract getAllCollectionsData(): Promise<Collection[]>;
+  abstract initCollectionDerug(symbol: string): Promise<boolean>;
 }

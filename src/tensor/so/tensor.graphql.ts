@@ -1,9 +1,11 @@
 import { PublicKey } from '@solana/web3.js';
+import { Collection } from 'src/magic-eden-collections/entity/collection.entity';
 import {
   graphQLClient,
   heliusMetadataEndpoint,
 } from 'src/utilities/solana/utilities';
 import { ICollectionRecentActivities, INftListing } from '../dto/tensor.dto';
+import { CollectionStats } from '../entities/stats.entity';
 import {
   mapCollectionListings,
   mapCollectionStats,
@@ -22,12 +24,15 @@ import {
 export const getFloorPrice = async (slug: string) => {
   const data = (await graphQLClient.request(FP_QUERY, { slug })) as any;
 
-  const mapped = mapCollectionStats(data);
+  // const mapped = mapCollectionStats(data);
 
-  return mapped;
+  return [];
 };
 
-export const getTraits = async (slug: string) => {
+export const getTensorCollectionData = async (
+  slug: string,
+  collection: Collection,
+) => {
   const fpQueryBody = JSON.stringify({
     query: FP_QUERY,
     variables: {
@@ -41,6 +46,8 @@ export const getTraits = async (slug: string) => {
     return null;
   }
 
+  const stats = mapCollectionStats(fpData.data, collection);
+
   const requestBody = JSON.stringify({
     query: TRAITS_QUERY,
     variables: {
@@ -49,15 +56,15 @@ export const getTraits = async (slug: string) => {
   });
 
   const data = await makeTensorQuery(requestBody);
-  console.log(fpData.data.instrumentTV2.slug, data);
 
   return {
     traits: mapTraitsQuery(data.data),
     tensorSlug: fpData.data.instrumentTV2.slug,
+    stats,
   };
 };
 
-export const getListings = async (slug: string) => {
+export const getListings = async (slug: string, collection: Collection) => {
   const data = (await graphQLClient.request(ACTIVE_LISTINGS_QUERY, {
     slug,
     filters: null,
@@ -65,7 +72,7 @@ export const getListings = async (slug: string) => {
     limit: 100,
   })) as any;
 
-  const listings = mapCollectionListings(data);
+  const listings = mapCollectionListings(data, collection);
   const nullImageListings = listings.filter((l) => l.imageUrl === null);
 
   if (nullImageListings.length > 0) {

@@ -7,6 +7,10 @@ export class PgRepository
   extends AbstractRepository<Collection>
   implements CollectionRepository
 {
+  async initCollectionDerug(symbol: string): Promise<boolean> {
+    await this.repository.update({ symbol }, { hasActiveDerug: true });
+    return true;
+  }
   getAllCollectionsData(): Promise<Collection[]> {
     return this.repository.find();
   }
@@ -21,6 +25,7 @@ export class PgRepository
   getBySlug(slug: string): Promise<Collection> {
     return this.createQueryBuilder('collection')
       .leftJoinAndSelect('collection.traits', 'traits')
+      .leftJoinAndSelect('collection.stats', 'stats')
       .where('collection.symbol=:slug', { slug })
       .getOne();
   }
