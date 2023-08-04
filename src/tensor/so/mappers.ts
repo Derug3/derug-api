@@ -45,7 +45,7 @@ export const mapTraitsQuery = (
               2,
             ),
             traitId: v4(),
-            fp: data.traits.traitActive[traitMeta]?.singleTrait
+            fp: data?.traits?.traitActive[traitMeta]?.singleTrait
               ? data.traits.traitActive[traitMeta][singleTrait].p
               : 0,
             image: data.traits.traitMeta[traitMeta][singleTrait]['img'],
