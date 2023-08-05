@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,6 +26,7 @@ import { StatsRepository } from './repository/stats.repository';
 import { Collection } from 'src/magic-eden-collections/entity/collection.entity';
 import { CronDataRepository } from './repository/cron_data.repository';
 import { CronData } from './entities/cron_data.entity';
+import { NotFoundError } from 'rxjs';
 @Injectable()
 export class TensorService implements OnModuleInit {
   slugs: string[];
@@ -46,7 +49,6 @@ export class TensorService implements OnModuleInit {
   }
   logger = new Logger(TensorService.name);
 
-  @Cron('* * * * *')
   async getTensorCollectionData(slug: string) {
     try {
       const allSlugs = await this.collectionService.getAllCollectionsSlugs();
@@ -91,6 +93,27 @@ export class TensorService implements OnModuleInit {
       await this.cronDataRepo.appendSlugs(newSlugs);
     } catch (error) {
       this.logger.error(`Failed in tensor cron: ${error.message}`);
+    }
+  }
+
+  async storeStats(slug: string, collection?: Collection) {
+    if (!collection) {
+      collection = await this.collectionService.getSingleCollection(slug);
+    }
+    if (!collection) {
+      throw new NotFoundException('Colelction not found!');
+    }
+    try {
+      const data = await getTensorCollectionData(collection.symbol, collection);
+      const listings = await this.getTensorListings(
+        data.tensorSlug,
+        collection,
+      );
+      await this.listingRepo.save(listings);
+      await this.statsRepo.save(data.stats);
+      await this.traitsRepo.save(data.traits);
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 

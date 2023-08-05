@@ -25,16 +25,15 @@ export class FetchAllNftsFromCollection {
     txData: GetNftsByUpdateAuthority,
   ) {
     try {
-      let queryFinished = false;
       let nfts: PublicRemint[] = [];
-      let paginationToken: string | undefined = undefined;
       let page = 1;
       let response: any;
       const derugRequest = await derugProgram.account.derugRequest.fetch(
         txData.derugRequest,
       );
+
       do {
-        response = (
+        response = await (
           await fetch(heliusRpc, {
             method: 'POST',
             body: JSON.stringify({
@@ -43,7 +42,6 @@ export class FetchAllNftsFromCollection {
               method: 'getAssetsByCreator',
               params: {
                 creatorAddress: creator,
-                onlyVerified: true,
                 page: page,
                 limit: 1000,
               },
@@ -75,18 +73,19 @@ export class FetchAllNftsFromCollection {
 
       this.logger.log(`Collection with ${nfts.length} NFTs aftrer filtering!`);
 
-      const existingMetadata = await this.publicRemintRepo.getNonMintedNfts(
-        derugData,
-      );
+      const chunkedNfts = chunk(nfts, 500);
 
-      if (existingMetadata.length === 0) {
-        await this.publicRemintRepo.storeAllCollectionNfts(nfts);
-      }
+      await Promise.all(
+        chunkedNfts.map(async (nfts) => {
+          await this.publicRemintRepo.storeAllCollectionNfts(nfts);
+        }),
+      );
 
       this.logger.debug(`Stored data for Derug Data:${derugData}`);
       await this.initPrivateMint(
         new PublicKey(derugData),
         new PublicKey(txData.derugRequest),
+        nfts.length,
       );
     } catch (error) {
       console.log(error);
@@ -97,10 +96,14 @@ export class FetchAllNftsFromCollection {
     }
   }
 
-  async initPrivateMint(derugData: PublicKey, derugRequest: PublicKey) {
+  async initPrivateMint(
+    derugData: PublicKey,
+    derugRequest: PublicKey,
+    totalSupply: number,
+  ) {
     try {
       const ix = await derugProgram.methods
-        .initPrivateMint()
+        .initPrivateMint(totalSupply)
         .accounts({
           derugData,
           derugRequest,

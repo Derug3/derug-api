@@ -16,8 +16,8 @@ export class TensorController {
     return this.tensorService.getStats(slug);
   }
 
-  @Get('/activities/:slug')
-  getRecentActivities(@Param('slug') slug: string) {
-    return [];
+  @Get('/store_stats/:slug')
+  storeStats(@Param('slug') slug: string) {
+    return this.tensorService.storeStats(slug);
   }
 }

@@ -6,6 +6,7 @@ import {
   DefaultGuardSetArgs,
   SolPayment,
   TokenPayment,
+  addConfigLines,
 } from 'derug-tech-mpl-candy-machine';
 import { PublicRemint } from 'src/public-remint/entity/public-remint.entity';
 import { heliusRpc, metaplexAuthorizationRules } from './solana/utilities';
@@ -26,7 +27,7 @@ import {
 import { NATIVE_MINT } from '@solana/spl-token';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { WalletWl, WlConfig } from 'src/wallet_wl/entity/wallet_wl.entity';
-import { getMerkleRoot, toBigNumber } from '@metaplex-foundation/js';
+import { chunk, getMerkleRoot, toBigNumber } from '@metaplex-foundation/js';
 import { UnauthorizedException } from '@nestjs/common';
 
 export const umi = createUmi(heliusRpc, { commitment: 'confirmed' }).use(
@@ -104,6 +105,12 @@ export async function setupCandyMachine(
       groups,
     })
   ).sendAndConfirm(umi);
+
+  await insertInCandyMachine(
+    publicMintNfts.map((pm) => ({ name: pm.name, uri: pm.uri })),
+    authority,
+    candyMachine.publicKey.toString(),
+  );
 }
 
 export async function getCmGuards(
@@ -235,3 +242,33 @@ export function getCandyMachinePaymentGuards(
     };
   }
 }
+
+export const insertInCandyMachine = async (
+  configLines: { name: string; uri: string }[],
+  authority: Keypair,
+  candyMachine: string,
+) => {
+  const auth = createSignerFromKeypair(umi, {
+    publicKey: publicKey(authority.publicKey),
+    secretKey: authority.secretKey,
+  });
+
+  umi.use(keypairIdentity(auth));
+
+  const chunkedConfigLines = chunk(configLines, 10);
+  let sumInserted = 0;
+  await Promise.all(
+    chunkedConfigLines.map(async (configLines, index) => {
+      await addConfigLines(umi, {
+        authority: auth,
+        candyMachine: publicKey(candyMachine),
+        configLines: configLines.map((cl) => ({
+          name: ' #' + cl.name.split('#')[1],
+          uri: cl.uri.split('/')[4],
+        })),
+        index: sumInserted,
+      }).sendAndConfirm(umi);
+      sumInserted += 10 * (index + 1);
+    }),
+  );
+};
