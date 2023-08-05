@@ -1,5 +1,5 @@
 import { Logger, NotFoundException } from '@nestjs/common';
-import { PublicRemintRepository } from '../repository/public-remint.repository';
+import { PublicRemintRepository } from '../repository/public-remint.pg.repository';
 
 export class UpdateReminted {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}

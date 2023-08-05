@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { CandyMachineRepository } from '../repository/candy-machine.repository';
+import { CandyMachineRepository } from '../repository/candy-machine.pg.repository';
 
 export class GetCandyMachineData {
   constructor(private readonly candyMachineRepo: CandyMachineRepository) {}

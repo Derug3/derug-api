@@ -1,12 +1,13 @@
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
+@Entity()
 export class Authority {
   @PrimaryColumn()
-  pubkey: string;
+  derugData: string;
 
   @Column()
   secretKey: string;
 
   @Column()
-  derugData: string;
+  pubkey: string;
 }

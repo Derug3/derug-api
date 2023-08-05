@@ -5,6 +5,7 @@ import {
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { MagicEdenCollectionsService } from 'src/magic-eden-collections/magic-eden-collections.service';
 import { setupCandyMachine } from 'src/utilities/candyMachine';
 import { parseKeypair } from 'src/utilities/solana/utilities';
@@ -13,9 +14,9 @@ import { WalletWlService } from 'src/wallet_wl/wallet_wl.service';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
 import { RemintDto } from './dto/remint.dto';
-import { AuthorityRepository } from './repository/authority.repository';
-import { CandyMachineRepository } from './repository/candy-machine.repository';
-import { PublicRemintRepository } from './repository/public-remint.repository';
+import { AuthorityRepository } from './repository/authority.repository.impl';
+import { CandyMachineRepository } from './repository/candy-machine.pg.repository';
+import { PublicRemintRepository } from './repository/public-remint.pg.repository';
 import { FetchAllNftsFromCollection } from './so/fetch-all-nfts';
 import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
@@ -35,12 +36,15 @@ export class PublicRemintService {
   private updateMintedNft: UpdateMintedNft;
   private getPrivateMintNftData: GetPrivateMintNftData;
   private remintNft: RemintNft;
-  private readonly authorityRepo: AuthorityRepository;
   constructor(
+    @InjectRepository(PublicRemintRepository)
     private readonly publicRemintRepo: PublicRemintRepository,
+    @InjectRepository(CandyMachineRepository)
     private readonly candyMachineRepo: CandyMachineRepository,
     private readonly wlService: WalletWlService,
     private readonly collectionService: MagicEdenCollectionsService,
+    @InjectRepository(AuthorityRepository)
+    private readonly authorityRepo: AuthorityRepository,
   ) {
     this.fetchAllNfts = new FetchAllNftsFromCollection(publicRemintRepo);
     this.updateReminted = new UpdateReminted(publicRemintRepo);

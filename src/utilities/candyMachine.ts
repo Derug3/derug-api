@@ -264,7 +264,7 @@ export const insertInCandyMachine = async (
         candyMachine: publicKey(candyMachine),
         configLines: configLines.map((cl) => ({
           name: ' #' + cl.name.split('#')[1],
-          uri: cl.uri.split('/')[4],
+          uri: extractStringAfterLastSlash(cl.uri),
         })),
         index: sumInserted,
       }).sendAndConfirm(umi);
@@ -272,3 +272,12 @@ export const insertInCandyMachine = async (
     }),
   );
 };
+
+function extractStringAfterLastSlash(inputString: string): string {
+  const lastSlashIndex = inputString.lastIndexOf('/');
+  if (lastSlashIndex === -1) {
+    return inputString;
+  } else {
+    return inputString.slice(lastSlashIndex + 1);
+  }
+}

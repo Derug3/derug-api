@@ -1,4 +1,4 @@
-import { PublicRemintRepository } from '../repository/public-remint.repository';
+import { PublicRemintRepository } from '../repository/public-remint.pg.repository';
 
 export class GetNonMinted {
   constructor(private readonly pulbicRemintRepo: PublicRemintRepository) {}

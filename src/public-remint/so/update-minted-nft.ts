@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { PublicRemintRepository } from '../repository/public-remint.repository';
+import { PublicRemintRepository } from '../repository/public-remint.pg.repository';
 
 export class UpdateMintedNft {
   constructor(private readonly publicMintRepo: PublicRemintRepository) {}

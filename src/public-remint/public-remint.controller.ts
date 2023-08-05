@@ -23,7 +23,7 @@ export class PublicRemintController {
     return this.publicRemintService.getCandyMachineData(derugData);
   }
 
-  @Get('/save/:derugData')
+  @Post('/save/:derugData')
   saveCandyMachine(@Param('derugData') derugData: string) {
     return this.publicRemintService.storePublicMintData(derugData);
   }

@@ -1,14 +1,15 @@
 import { Keypair } from '@solana/web3.js';
-import { EntityRepository, Repository } from 'typeorm';
+import { DataSource, EntityRepository, Repository } from 'typeorm';
 import { Authority } from '../entity/authority.entity';
-import { AuthorityRepository } from './authority.repository';
+
 import { encode } from 'bs58';
-import { NotFoundException } from '@nestjs/common';
-@EntityRepository(Authority)
-export class PgAuthorityRepository
-  extends Repository<Authority>
-  implements AuthorityRepository
-{
+import { Injectable, NotFoundException } from '@nestjs/common';
+@Injectable()
+export class AuthorityRepository extends Repository<Authority> {
+  constructor(dataSource: DataSource) {
+    super(Authority, dataSource.createEntityManager());
+  }
+
   get(derugData: string): Promise<Authority> {
     return this.findOne({ where: { derugData } });
   }

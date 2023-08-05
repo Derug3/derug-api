@@ -404,16 +404,7 @@ export type DerugProgram = {
           isSigner: false;
         },
       ];
-      args: [
-        {
-          name: 'newName';
-          type: 'string';
-        },
-        {
-          name: 'newUri';
-          type: 'string';
-        },
-      ];
+      args: [];
     },
     {
       name: 'closeProgramAccount';
@@ -1600,16 +1591,7 @@ export const IDL: DerugProgram = {
           isSigner: false,
         },
       ],
-      args: [
-        {
-          name: 'newName',
-          type: 'string',
-        },
-        {
-          name: 'newUri',
-          type: 'string',
-        },
-      ],
+      args: [],
     },
     {
       name: 'closeProgramAccount',

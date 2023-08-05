@@ -1,21 +1,24 @@
-import { AbstractRepository, EntityRepository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { CandyMachineData } from '../entity/candy-machine.entity';
-import { CandyMachineRepository } from './candy-machine.repository';
 
-@EntityRepository(CandyMachineData)
-export class CandyMachineDataPgRepository
-  extends AbstractRepository<CandyMachineData>
+@Injectable()
+export class CandyMachineRepository
+  extends Repository<CandyMachineData>
   implements CandyMachineRepository
 {
+  constructor(dataSource: DataSource) {
+    super(CandyMachineData, dataSource.createEntityManager());
+  }
   get(derugData: string): Promise<CandyMachineData> {
-    return this.repository.findOne({ where: { derugData } });
+    return this.findOne({ where: { derugData } });
   }
   storeCandyMachineData(
     candyMachine: CandyMachineData,
   ): Promise<CandyMachineData> {
-    return this.repository.save(candyMachine);
+    return this.save(candyMachine);
   }
   getCandyMachineData(derugData: string): Promise<CandyMachineData> {
-    return this.repository.findOne({ where: { derugData: derugData } });
+    return this.findOne({ where: { derugData: derugData } });
   }
 }

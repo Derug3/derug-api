@@ -12,7 +12,7 @@ import { ShadowFile } from '@shadow-drive/sdk';
 import { derugProgram, metadataUploader } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from '../dto/candy-machine.dto';
 import { PublicRemint } from '../entity/public-remint.entity';
-import { PublicRemintRepository } from '../repository/public-remint.repository';
+import { PublicRemintRepository } from '../repository/public-remint.pg.repository';
 
 export class FetchAllNftsFromCollection {
   constructor(private readonly publicRemintRepo: PublicRemintRepository) {}
