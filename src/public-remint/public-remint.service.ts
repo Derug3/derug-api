@@ -66,7 +66,7 @@ export class PublicRemintService {
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
     this.getPrivateMintNftData = new GetPrivateMintNftData(publicRemintRepo);
-    this.remintNft = new RemintNft(authorityRepo);
+    this.remintNft = new RemintNft(authorityRepo, publicRemintRepo);
   }
   private readonly logger = new Logger(PublicRemintService.name);
 
