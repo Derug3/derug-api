@@ -81,17 +81,17 @@ export type DerugProgram = {
           type: 'string';
         },
         {
+          name: 'mintConfig';
+          type: {
+            defined: 'MintConfig';
+          };
+        },
+        {
           name: 'creators';
           type: {
             vec: {
               defined: 'DeruggerCreator';
             };
-          };
-        },
-        {
-          name: 'mintConfig';
-          type: {
-            defined: 'MintConfig';
           };
         },
       ];
@@ -270,7 +270,7 @@ export type DerugProgram = {
         },
         {
           name: 'newCollection';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -285,7 +285,7 @@ export type DerugProgram = {
         },
         {
           name: 'oldCollection';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -295,7 +295,7 @@ export type DerugProgram = {
         },
         {
           name: 'newMint';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -305,7 +305,7 @@ export type DerugProgram = {
         },
         {
           name: 'newToken';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -340,12 +340,12 @@ export type DerugProgram = {
         },
         {
           name: 'collectionMint';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
           name: 'collectionMetadata';
-          isMut: false;
+          isMut: true;
           isSigner: false;
         },
         {
@@ -423,11 +423,6 @@ export type DerugProgram = {
           name: 'payer';
           isMut: false;
           isSigner: true;
-        },
-        {
-          name: 'remintConfig';
-          isMut: true;
-          isSigner: false;
         },
       ];
       args: [];
@@ -1083,6 +1078,11 @@ export type DerugProgram = {
           type: 'publicKey';
           index: false;
         },
+        {
+          name: 'derugRequest';
+          type: 'publicKey';
+          index: false;
+        },
       ];
     },
   ];
@@ -1268,17 +1268,17 @@ export const IDL: DerugProgram = {
           type: 'string',
         },
         {
+          name: 'mintConfig',
+          type: {
+            defined: 'MintConfig',
+          },
+        },
+        {
           name: 'creators',
           type: {
             vec: {
               defined: 'DeruggerCreator',
             },
-          },
-        },
-        {
-          name: 'mintConfig',
-          type: {
-            defined: 'MintConfig',
           },
         },
       ],
@@ -1457,7 +1457,7 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'newCollection',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -1472,7 +1472,7 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'oldCollection',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -1482,7 +1482,7 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'newMint',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -1492,7 +1492,7 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'newToken',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -1527,12 +1527,12 @@ export const IDL: DerugProgram = {
         },
         {
           name: 'collectionMint',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
           name: 'collectionMetadata',
-          isMut: false,
+          isMut: true,
           isSigner: false,
         },
         {
@@ -1610,11 +1610,6 @@ export const IDL: DerugProgram = {
           name: 'payer',
           isMut: false,
           isSigner: true,
-        },
-        {
-          name: 'remintConfig',
-          isMut: true,
-          isSigner: false,
         },
       ],
       args: [],
@@ -2267,6 +2262,11 @@ export const IDL: DerugProgram = {
       fields: [
         {
           name: 'derugData',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'derugRequest',
           type: 'publicKey',
           index: false,
         },

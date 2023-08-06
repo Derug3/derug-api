@@ -2,13 +2,22 @@ import {
   BadRequestException,
   Injectable,
   Logger,
+  NotFoundException,
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  Connection,
+  Keypair,
+  Transaction,
+  VersionedTransaction,
+} from '@solana/web3.js';
+import { decode } from 'bs58';
+import { NotFoundError } from 'rxjs';
 import { MagicEdenCollectionsService } from 'src/magic-eden-collections/magic-eden-collections.service';
 import { setupCandyMachine } from 'src/utilities/candyMachine';
-import { parseKeypair } from 'src/utilities/solana/utilities';
+import { heliusRpc, parseKeypair } from 'src/utilities/solana/utilities';
 import { checkIfMessageIsSigned, derugProgram } from 'src/utilities/utils';
 import { WalletWlService } from 'src/wallet_wl/wallet_wl.service';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
@@ -57,7 +66,7 @@ export class PublicRemintService {
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
     this.getPrivateMintNftData = new GetPrivateMintNftData(publicRemintRepo);
-    this.remintNft = new RemintNft();
+    this.remintNft = new RemintNft(authorityRepo);
   }
   private readonly logger = new Logger(PublicRemintService.name);
 
@@ -67,6 +76,17 @@ export class PublicRemintService {
 
   saveReminted(mint: string, reminter: string) {
     return this.updateMintedNft.execute(mint, reminter);
+  }
+
+  async getAuthority(derugData: string) {
+    const authority = await this.authorityRepo.findOne({
+      where: { derugData },
+    });
+    if (!authority) {
+      throw new NotFoundException('Authority for given derug does not exist!');
+    }
+
+    return { authority: authority.pubkey };
   }
 
   getNonMintedNfts(derugData: string) {
@@ -83,6 +103,27 @@ export class PublicRemintService {
 
   getCandyMachineData(derugData: string) {
     return this.getCandyMachine.execute(derugData);
+  }
+
+  async initializeDerug(tx: string, derugData: string) {
+    const transaction = Transaction.from(JSON.parse(tx).data);
+    const authority = await this.authorityRepo.findOne({
+      where: { derugData },
+    });
+    if (!authority) throw new NotFoundException('Authority not found!');
+    const authorityPayer = Keypair.fromSecretKey(decode(authority.secretKey));
+    try {
+      transaction.partialSign(authorityPayer);
+      const connection = new Connection(heliusRpc, 'finalized');
+      const txSig = await connection.sendRawTransaction(
+        transaction.serialize(),
+      );
+      await connection.confirmTransaction(txSig);
+      this.logger.log('Derug initialized');
+      return true;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async initCandyMacihine(dto: InitMachineRequestDto) {

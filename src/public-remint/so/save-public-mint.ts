@@ -16,6 +16,18 @@ export class SavePublicMintData {
   ) {}
   async execute(derugData: string) {
     try {
+      const existingCm = await this.candyMachineRepo.findOne({
+        where: { derugData },
+      });
+      const existingAuth = await this.authorityRepo.findOne({
+        where: { derugData },
+      });
+      if (existingCm && existingAuth) {
+        return {
+          authority: existingAuth.pubkey,
+          candyMachine: existingCm.candyMachineKey,
+        };
+      }
       const candyMachineData = new CandyMachineData();
       const candyMachine = Keypair.generate();
       const encodedKey = encode(candyMachine.secretKey);

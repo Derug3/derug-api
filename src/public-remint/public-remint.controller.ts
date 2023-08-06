@@ -13,6 +13,11 @@ export class PublicRemintController {
     return this.publicRemintService.fetchAllNftsFromCollection(tx);
   }
 
+  @Get('/authority/:derugData')
+  getAuthority(@Param('derugData') derugData: string) {
+    return this.publicRemintService.getAuthority(derugData);
+  }
+
   @Get('non-minted/:derugData')
   getNonMinted(@Param('derugData') derugData: string) {
     return this.publicRemintService.getNonMintedNfts(derugData);
@@ -39,7 +44,14 @@ export class PublicRemintController {
   }
 
   @Post('/remint')
-  remintNft(@Body('remint') remint: RemintDto) {
+  remintNft(@Body() remint: RemintDto) {
     return this.publicRemintService.remintNftHandler(remint);
+  }
+  @Post('/initialize-derug')
+  initializeDerug(@Body() initDerugDto: { tx: string; derugData: string }) {
+    return this.publicRemintService.initializeDerug(
+      initDerugDto.tx,
+      initDerugDto.derugData,
+    );
   }
 }

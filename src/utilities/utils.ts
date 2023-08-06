@@ -56,9 +56,7 @@ export const derugProgram = new Program<DerugProgram>(
   IDL,
   new PublicKey(PROGRAM_ID),
   new AnchorProvider(
-    new Connection(
-      'https://mainnet.helius-rpc.com/?api-key=88368c93-dc7e-4637-9328-46fc7a414549',
-    ),
+    new Connection(process.env.HELIUS_RPC, { commitment: 'confirmed' }),
     new Wallet(Keypair.generate()),
     {
       commitment: 'confirmed',
