@@ -61,8 +61,14 @@ export class MagicEdenCollectionsService implements OnModuleInit {
     return this.getFlaggedCollections.execute(pageNumber);
   }
 
-  getRandom() {
-    return this.getRandomCollections.execute();
+  async getRandom() {
+    const randomCollections = await this.getRandomCollections.execute();
+    const filteredCollections = await Promise.all(
+      randomCollections.filter(async (coll) => {
+        await this.checkImageStatus(coll.image);
+      }),
+    );
+    return filteredCollections;
   }
 
   getCollectionByName(name: string) {
@@ -116,5 +122,19 @@ export class MagicEdenCollectionsService implements OnModuleInit {
 
   async initCollectionDerug(symbol: string) {
     await this.collectionRepository.initCollectionDerug(symbol);
+  }
+
+  async checkImageStatus(url: string) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        return true;
+      } else if (response.status === 404) {
+        return false;
+      }
+    } catch (error) {
+      console.error('Error occurred while fetching the image:', error);
+      return false;
+    }
   }
 }
