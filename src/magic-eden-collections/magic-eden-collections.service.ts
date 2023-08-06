@@ -62,13 +62,18 @@ export class MagicEdenCollectionsService implements OnModuleInit {
   }
 
   async getRandom() {
-    const randomCollections = await this.getRandomCollections.execute();
-    const filteredCollections = await Promise.all(
-      randomCollections.filter(async (coll) => {
-        await this.checkImageStatus(coll.image);
-      }),
-    );
-    return filteredCollections;
+    const validCollections = [];
+      const randomCollections = await this.getRandomCollections.execute();
+
+      for (const collection of randomCollections) {
+        const isValid = await this.checkImageStatus(collection.image); // Check image status
+        if (isValid) {
+          validCollections.push(collection);
+        }
+      }
+
+
+    return validCollections
   }
 
   getCollectionByName(name: string) {
