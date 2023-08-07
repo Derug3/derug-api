@@ -120,7 +120,7 @@ export class PublicRemintService {
       );
       await connection.confirmTransaction(txSig);
       this.logger.log('Derug initialized');
-      return true;
+      return { initialized: true };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -129,18 +129,21 @@ export class PublicRemintService {
   async initCandyMacihine(dto: InitMachineRequestDto) {
     try {
       const { derugData, payer, signedMessage } = dto;
+      console.log(payer);
+
       const isValid = checkIfMessageIsSigned(
         signedMessage,
         `Init candy machine for derug ${derugData}`,
         payer,
       );
-      if (!isValid) throw new UnauthorizedException();
+      if (!isValid) return { message: 'Unauthorized', code: 403 };
       const rawAuthority = await this.authorityRepo.get(derugData);
       const rawCandyMachine = await this.candyMachineRepo.get(derugData);
       if (!rawAuthority || !rawCandyMachine) {
-        throw new BadRequestException(
-          'Missing data for initializing public mint!',
-        );
+        return {
+          message: 'Missing data for initializing public mint!',
+          code: 400,
+        };
       }
       const authority = parseKeypair(rawAuthority.secretKey);
       const candyMachine = parseKeypair(rawCandyMachine.candyMachineSecretKey);
@@ -148,7 +151,6 @@ export class PublicRemintService {
       const publicMintConfig = await this.publicRemintRepo.getByDerugData(
         derugData,
       );
-
       await setupCandyMachine(
         candyMachine,
         authority,
@@ -157,12 +159,13 @@ export class PublicRemintService {
         walletWl,
         payer,
       );
-      return candyMachine.publicKey.toString();
+      return { message: 'Candy machine initialized', code: 200 };
     } catch (error) {
-      throw new BadRequestException(error.message);
+      console.log(error);
+
+      return { message: 'Failed to initialize candy machine', code: 500 };
     }
   }
-
   remintNftHandler(remint: RemintDto) {
     try {
       return this.remintNft.execute(remint);

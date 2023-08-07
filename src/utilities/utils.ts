@@ -1,18 +1,15 @@
 import { decode } from '@project-serum/anchor/dist/cjs/utils/bytes/hex';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
-import nacl from 'tweetnacl';
-import {
-  Metaplex,
-  createCandyMachineV2Builder,
-  bundlrStorage,
-} from '@metaplex-foundation/js';
+import * as nacl from 'tweetnacl';
+
 import { TwitterApi } from 'twitter-api-v2';
-import { RPC_CONNECTION } from './solana/utilities';
+
 import * as dotenv from 'dotenv';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { DerugProgram, IDL } from '../solana/derug_program';
 import Client, { auth } from 'twitter-api-sdk';
 import { REDIRECT, TWITTER_AUTH } from './constants';
+import { bs58 } from '@project-serum/anchor/dist/cjs/utils/bytes';
 
 dotenv.config();
 export function checkIfMessageIsSigned(
@@ -24,17 +21,18 @@ export function checkIfMessageIsSigned(
 
   try {
     const publicKey = new PublicKey(pubKey);
-    const messageBytes = new TextEncoder().encode(message);
 
     const isOwner = nacl.sign.detached.verify(
-      messageBytes,
-      decode(signedMessage),
+      new TextEncoder().encode(message),
+      bs58.decode(signedMessage),
       publicKey.toBytes(),
     );
 
     if (!isOwner) return false;
     return true;
   } catch (error) {
+    console.log(error);
+
     return false;
   }
 }

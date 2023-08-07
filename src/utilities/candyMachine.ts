@@ -1,5 +1,10 @@
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from '@solana/web3.js';
 import {
   mplCandyMachine,
   GuardGroupArgs,
@@ -54,6 +59,28 @@ export async function setupCandyMachine(
   ).map((nft) => nft.account.oldMint.toString());
   const publicMintNfts = publicMint.filter((pm) => !reminted.includes(pm.mint));
 
+  const connection = new Connection(heliusRpc);
+
+  const candyMachineAccInfo = await connection.getAccountInfo(
+    candyMachine.publicKey,
+  );
+
+  if (
+    candyMachineAccInfo &&
+    candyMachineAccInfo.data &&
+    candyMachineAccInfo.data.length > 0
+  ) {
+    console.log('Found existing candy machine');
+
+    await insertInCandyMachine(
+      publicMintNfts.map((pm) => ({ name: pm.name, uri: pm.uri })),
+      authority,
+      candyMachine.publicKey.toString(),
+    );
+
+    return;
+  }
+
   const derugDataAccount = await derugProgram.account.derugData.fetch(
     new PublicKey(derugData),
   );
@@ -75,6 +102,14 @@ export async function setupCandyMachine(
 
   umi.use(keypairIdentity(authoritySigner));
 
+  const longestName = publicMintNfts.sort(
+    (a, b) => b.newName.length - a.newName.length,
+  );
+  const [authorityPda] = PublicKey.findProgramAddressSync(
+    [Buffer.from('derug'), candyMachine.publicKey.toBuffer()],
+    derugProgram.programId,
+  );
+  const longestUri = publicMintNfts.sort((a, b) => b.uri.length - a.uri.length);
   const cm = (
     await create(umi, {
       candyMachine: createSignerFromKeypair(umi, {
@@ -88,6 +123,7 @@ export async function setupCandyMachine(
         percentageShare: c.share,
         verified: false,
       })),
+      authorityPda: publicKey(authorityPda),
       itemsAvailable: publicMintNfts.length,
       sellerFeeBasisPoints: percentAmount(
         derugRequestAccount.mintConfig.sellerFeeBps,
@@ -97,14 +133,18 @@ export async function setupCandyMachine(
       ruleSet: publicKey(metaplexAuthorizationRules),
       configLineSettings: {
         isSequential: false,
-        nameLength,
+        nameLength:
+          longestName[0].newName.length +
+          publicMintNfts.length.toString().length,
         prefixName: namePrefix,
         prefixUri,
-        uriLength,
+        uriLength: longestUri[0].uri.length,
       },
       groups,
     })
   ).sendAndConfirm(umi);
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   await insertInCandyMachine(
     publicMintNfts.map((pm) => ({ name: pm.name, uri: pm.uri })),
@@ -127,7 +167,8 @@ export async function getCmGuards(
     const merkleRoot = getMerkleRoot(wlConfig.wallets.map((w) => w.wallet));
     const { solPayment, tokenPayment } = getCandyMachinePaymentGuards(
       derugRequestAccount.mintCurrency,
-      derugRequestAccount.mintConfig.whitelistConfig.price.toNumber(),
+      derugRequestAccount.mintConfig.whitelistConfig.price.toNumber() /
+        LAMPORTS_PER_SOL,
       derugRequestAccount.mintConfig.destinationAta ??
         derugRequestAccount.derugger,
     );
@@ -155,7 +196,8 @@ export async function getCmGuards(
   }
   const { solPayment, tokenPayment } = getCandyMachinePaymentGuards(
     derugRequestAccount.mintConfig.mintCurrency,
-    derugRequestAccount.mintConfig.publicMintPrice.toNumber(),
+    derugRequestAccount.mintConfig.publicMintPrice.toNumber() /
+      LAMPORTS_PER_SOL,
     derugRequestAccount.mintConfig.destinationAta ??
       derugRequestAccount.derugger,
   );
@@ -177,12 +219,14 @@ export async function getCmGuards(
       startDate: {
         date: startDate,
       },
-      botTax: {
-        lamports: sol(
-          derugRequestAccount.mintConfig.publicMintPrice.toNumber(),
-        ),
-        lastInstruction: true,
-      },
+      //TODO:figure out how to return this!
+      // botTax: {
+      //   lamports: sol(
+      //     derugRequestAccount.mintConfig.publicMintPrice.toNumber() /
+      //       LAMPORTS_PER_SOL,
+      //   ),
+      //   lastInstruction: true,
+      // },
     },
   });
 
@@ -263,8 +307,8 @@ export const insertInCandyMachine = async (
         authority: auth,
         candyMachine: publicKey(candyMachine),
         configLines: configLines.map((cl) => ({
-          name: ' #' + cl.name.split('#')[1],
-          uri: extractStringAfterLastSlash(cl.uri),
+          name: cl.name,
+          uri: cl.uri,
         })),
         index: sumInserted,
       }).sendAndConfirm(umi);
