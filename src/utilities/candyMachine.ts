@@ -105,10 +105,6 @@ export async function setupCandyMachine(
   const longestName = publicMintNfts.sort(
     (a, b) => b.newName.length - a.newName.length,
   );
-  const [authorityPda] = PublicKey.findProgramAddressSync(
-    [Buffer.from('derug'), candyMachine.publicKey.toBuffer()],
-    derugProgram.programId,
-  );
   const longestUri = publicMintNfts.sort((a, b) => b.uri.length - a.uri.length);
   const cm = (
     await create(umi, {
@@ -123,10 +119,10 @@ export async function setupCandyMachine(
         percentageShare: c.share,
         verified: false,
       })),
-      authorityPda: publicKey(authorityPda),
       itemsAvailable: publicMintNfts.length,
+      //TODO:Fix
       sellerFeeBasisPoints: percentAmount(
-        derugRequestAccount.mintConfig.sellerFeeBps,
+        derugRequestAccount.mintConfig.sellerFeeBps / 100,
         2,
       ),
       tokenStandard: TokenStandard.ProgrammableNonFungible,

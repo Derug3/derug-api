@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   Connection,
   Keypair,
+  PublicKey,
   Transaction,
   VersionedTransaction,
 } from '@solana/web3.js';
@@ -22,14 +23,14 @@ import { checkIfMessageIsSigned, derugProgram } from 'src/utilities/utils';
 import { WalletWlService } from 'src/wallet_wl/wallet_wl.service';
 import { GetNftsByUpdateAuthority } from './dto/candy-machine.dto';
 import { InitMachineRequestDto } from './dto/init-machine.dto';
-import { RemintDto } from './dto/remint.dto';
+import { MintFromCandyMachineDto, RemintDto } from './dto/remint.dto';
 import { AuthorityRepository } from './repository/authority.repository.impl';
 import { CandyMachineRepository } from './repository/candy-machine.pg.repository';
 import { PublicRemintRepository } from './repository/public-remint.pg.repository';
 import { FetchAllNftsFromCollection } from './so/fetch-all-nfts';
 import { GetCandyMachineData } from './so/get-candy-machine';
 import { GetNonMinted } from './so/get-non-minted';
-import { GetPrivateMintNftData } from './so/get-private-mint-nft-data';
+import { MintNft } from './so/mint_nft.so';
 import { RemintNft } from './so/remint_nft.so';
 import { SavePublicMintData } from './so/save-public-mint';
 import { UpdateMintedNft } from './so/update-minted-nft';
@@ -43,8 +44,8 @@ export class PublicRemintService {
   private savePublicMintData: SavePublicMintData;
   private getCandyMachine: GetCandyMachineData;
   private updateMintedNft: UpdateMintedNft;
-  private getPrivateMintNftData: GetPrivateMintNftData;
   private remintNft: RemintNft;
+  private mintNft: MintNft;
   constructor(
     @InjectRepository(PublicRemintRepository)
     private readonly publicRemintRepo: PublicRemintRepository,
@@ -65,8 +66,8 @@ export class PublicRemintService {
     );
     this.getCandyMachine = new GetCandyMachineData(candyMachineRepo);
     this.updateMintedNft = new UpdateMintedNft(publicRemintRepo);
-    this.getPrivateMintNftData = new GetPrivateMintNftData(publicRemintRepo);
     this.remintNft = new RemintNft(authorityRepo, publicRemintRepo);
+    this.mintNft = new MintNft(authorityRepo);
   }
   private readonly logger = new Logger(PublicRemintService.name);
 
@@ -86,7 +87,10 @@ export class PublicRemintService {
       throw new NotFoundException('Authority for given derug does not exist!');
     }
 
-    return { authority: authority.pubkey };
+    return {
+      authority: authority.pubkey,
+      firstCreator: authority.firstCreator,
+    };
   }
 
   getNonMintedNfts(derugData: string) {
@@ -151,6 +155,12 @@ export class PublicRemintService {
       const publicMintConfig = await this.publicRemintRepo.getByDerugData(
         derugData,
       );
+      const expectedPda = PublicKey.findProgramAddressSync(
+        [Buffer.from('derug'), candyMachine.publicKey.toBuffer()],
+        derugProgram.programId,
+      );
+      console.log(expectedPda);
+
       await setupCandyMachine(
         candyMachine,
         authority,
@@ -172,5 +182,9 @@ export class PublicRemintService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  mintHandler(mintDto: MintFromCandyMachineDto) {
+    return this.mintNft.execute(mintDto);
   }
 }

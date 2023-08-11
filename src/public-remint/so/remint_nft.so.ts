@@ -46,7 +46,13 @@ export class RemintNft {
 
         const auth = Keypair.fromSecretKey(decode(authority.secretKey));
 
+        const firstCreator = Keypair.fromSecretKey(
+          decode(authority.firstCreatorSecretKey),
+        );
+
         transaction.partialSign(auth);
+
+        transaction.partialSign(firstCreator);
 
         const txSig = await connection.sendRawTransaction(
           transaction.serialize(),

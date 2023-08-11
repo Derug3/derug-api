@@ -6,3 +6,10 @@ export class RemintDto {
   @IsString()
   derugData: string;
 }
+
+export class MintFromCandyMachineDto {
+  @IsString()
+  signedTx: any;
+  @IsString()
+  derugData: string;
+}

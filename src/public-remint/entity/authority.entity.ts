@@ -10,4 +10,10 @@ export class Authority {
 
   @Column()
   pubkey: string;
+
+  @Column()
+  firstCreator: string;
+
+  @Column()
+  firstCreatorSecretKey: string;
 }
