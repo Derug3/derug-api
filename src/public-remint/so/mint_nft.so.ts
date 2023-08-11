@@ -28,19 +28,17 @@ export class MintNft {
         JSON.parse(mintNftDto.signedTx).data,
       );
 
+      const authority = Keypair.fromSecretKey(decode(authorityData.secretKey));
+
+      transaction.partialSign(authority);
+
       const filteredInstructions = transaction.instructions.filter(
         (ix) => !ix.programId.equals(ComputeBudgetProgram.programId),
       );
 
-      if (filteredInstructions.length > 1) {
+      if (filteredInstructions.length > 2) {
         return { code: 400, message: 'Invalid instructions amount!' };
       }
-
-      const firstCreator = Keypair.fromSecretKey(
-        decode(authorityData.firstCreatorSecretKey),
-      );
-
-      transaction.partialSign(firstCreator);
 
       const connection = new Connection(heliusRpc, 'finalized');
 

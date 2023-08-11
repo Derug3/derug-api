@@ -37,3 +37,5 @@ export function parseKeypair(secretKey: string) {
 }
 
 export const railwayUrl = process.env.RAILWAY_URL!;
+
+export const platformAuthority = 'DRG3YRmurqpWQ1jEjK8DiWMuqPX9yL32LXLbuRdoiQwt';

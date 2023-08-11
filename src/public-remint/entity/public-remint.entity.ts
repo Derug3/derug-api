@@ -17,6 +17,9 @@ export class PublicRemint {
   @Column({ nullable: true })
   remintAuthority: string;
 
+  @Column({ default: false })
+  verifyingFailed: boolean;
+
   @Column()
   name: string;
 

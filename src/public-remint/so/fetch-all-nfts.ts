@@ -54,6 +54,7 @@ export class FetchAllNftsFromCollection {
             creator: creator,
             dateReminted: null,
             derugData: derugData,
+            verifyingFailed: false,
             name: res.content.metadata.name,
             newName:
               derugRequest.newName +
