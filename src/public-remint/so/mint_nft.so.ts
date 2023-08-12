@@ -40,7 +40,7 @@ export class MintNft {
         return { code: 400, message: 'Invalid instructions amount!' };
       }
 
-      const connection = new Connection(heliusRpc, 'confirmed');
+      const connection = new Connection(heliusRpc, 'finalized');
 
       const txSig = await connection.sendRawTransaction(
         transaction.serialize(),
