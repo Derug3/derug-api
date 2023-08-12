@@ -12,6 +12,7 @@ import {
   SolPayment,
   TokenPayment,
   addConfigLines,
+  fetchCandyMachine,
 } from 'derug-tech-mpl-candy-machine';
 import { PublicRemint } from 'src/public-remint/entity/public-remint.entity';
 import {
@@ -299,10 +300,18 @@ export const insertInCandyMachine = async (
 
   umi.use(keypairIdentity(auth));
 
+  const candyMachineData = await fetchCandyMachine(
+    umi,
+    publicKey(candyMachine),
+  );
+
+  console.log(candyMachineData);
+
   const chunkedConfigLines = chunk(configLines, 10);
   let sumInserted = 0;
-  try {
-    for (const [index, cLines] of chunkedConfigLines.entries()) {
+
+  for (const [index, cLines] of chunkedConfigLines.entries()) {
+    try {
       addConfigLines(umi, {
         authority: auth,
         candyMachine: publicKey(candyMachine),
@@ -313,9 +322,9 @@ export const insertInCandyMachine = async (
         index: sumInserted,
       }).sendAndConfirm(umi);
       sumInserted += 10 * (index + 1);
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    throw new BadRequestException(error.message);
   }
 };
 
