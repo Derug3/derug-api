@@ -297,20 +297,18 @@ export const insertInCandyMachine = async (
 
   const chunkedConfigLines = chunk(configLines, 10);
   let sumInserted = 0;
-  await Promise.all(
-    chunkedConfigLines.map(async (configLines, index) => {
-      await addConfigLines(umi, {
-        authority: auth,
-        candyMachine: publicKey(candyMachine),
-        configLines: configLines.map((cl) => ({
-          name: cl.name,
-          uri: cl.uri,
-        })),
-        index: sumInserted,
-      }).sendAndConfirm(umi);
-      sumInserted += 10 * (index + 1);
-    }),
-  );
+  for (const [index, cLines] of chunkedConfigLines.entries()) {
+    addConfigLines(umi, {
+      authority: auth,
+      candyMachine: publicKey(candyMachine),
+      configLines: cLines.map((cl) => ({
+        name: cl.name,
+        uri: cl.uri,
+      })),
+      index: sumInserted,
+    }).sendAndConfirm(umi);
+    sumInserted += 10 * (index + 1);
+  }
 };
 
 function extractStringAfterLastSlash(inputString: string): string {
