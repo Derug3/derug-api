@@ -28,6 +28,7 @@ export class FetchAllNftsFromCollection {
       let nfts: PublicRemint[] = [];
       let page = 1;
       let response: any;
+      let totalSupply = 1;
       const derugRequest = await derugProgram.account.derugRequest.fetch(
         txData.derugRequest,
       );
@@ -58,8 +59,9 @@ export class FetchAllNftsFromCollection {
             name: res.content.metadata.name,
             newName:
               derugRequest.newName +
-              ' #' +
-              res.content.metadata.name.split('#')[1],
+                ' #' +
+                res.content.metadata.name.split('#')[1] ??
+              totalSupply.toString(),
             hasReminted: false,
             newSymbol: derugRequest.newSymbol,
             newUri: res.content.json_uri,
@@ -67,6 +69,7 @@ export class FetchAllNftsFromCollection {
             mint: res.id,
             remintAuthority: derugRequest.derugger.toString(),
           });
+          totalSupply++;
         });
       } while (response.result.items.length > 0);
 
