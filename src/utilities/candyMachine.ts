@@ -14,7 +14,11 @@ import {
   addConfigLines,
 } from 'derug-tech-mpl-candy-machine';
 import { PublicRemint } from 'src/public-remint/entity/public-remint.entity';
-import { heliusRpc, metaplexAuthorizationRules } from './solana/utilities';
+import {
+  CONNECTION_URL,
+  heliusRpc,
+  metaplexAuthorizationRules,
+} from './solana/utilities';
 import { derugProgram } from './utils';
 import { create } from 'derug-tech-mpl-candy-machine';
 import {
@@ -33,9 +37,9 @@ import { NATIVE_MINT } from '@solana/spl-token';
 import { TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
 import { WalletWl, WlConfig } from 'src/wallet_wl/entity/wallet_wl.entity';
 import { chunk, getMerkleRoot, toBigNumber } from '@metaplex-foundation/js';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
-export const umi = createUmi(heliusRpc, { commitment: 'confirmed' }).use(
+export const umi = createUmi(CONNECTION_URL, { commitment: 'confirmed' }).use(
   mplCandyMachine(),
 );
 
@@ -297,17 +301,21 @@ export const insertInCandyMachine = async (
 
   const chunkedConfigLines = chunk(configLines, 10);
   let sumInserted = 0;
-  for (const [index, cLines] of chunkedConfigLines.entries()) {
-    addConfigLines(umi, {
-      authority: auth,
-      candyMachine: publicKey(candyMachine),
-      configLines: cLines.map((cl) => ({
-        name: cl.name,
-        uri: cl.uri,
-      })),
-      index: sumInserted,
-    }).sendAndConfirm(umi);
-    sumInserted += 10 * (index + 1);
+  try {
+    for (const [index, cLines] of chunkedConfigLines.entries()) {
+      addConfigLines(umi, {
+        authority: auth,
+        candyMachine: publicKey(candyMachine),
+        configLines: cLines.map((cl) => ({
+          name: cl.name,
+          uri: cl.uri,
+        })),
+        index: sumInserted,
+      }).sendAndConfirm(umi);
+      sumInserted += 10 * (index + 1);
+    }
+  } catch (error) {
+    throw new BadRequestException(error.message);
   }
 };
 

@@ -159,7 +159,6 @@ export class PublicRemintService {
         [Buffer.from('derug'), candyMachine.publicKey.toBuffer()],
         derugProgram.programId,
       );
-      console.log(expectedPda);
 
       await setupCandyMachine(
         candyMachine,
