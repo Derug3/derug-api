@@ -1,4 +1,4 @@
-import { bundlrStorage, Metaplex, Signer } from '@metaplex-foundation/js';
+import { bundlrStorage, Metaplex } from '@metaplex-foundation/js';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as dotenv from 'dotenv';
 import { GraphQLClient } from 'graphql-request';
@@ -9,7 +9,7 @@ export const heliusRpc = process.env.HELIUS_RPC;
 
 dotenv.config();
 
-export const RPC_CONNECTION = new Connection(heliusRpc);
+export const RPC_CONNECTION = new Connection(heliusRpc, 'finalized');
 
 export const metaplex = new Metaplex(RPC_CONNECTION).use(bundlrStorage());
 

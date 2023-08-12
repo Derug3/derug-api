@@ -111,7 +111,7 @@ export async function setupCandyMachine(
     (a, b) => b.newName.length - a.newName.length,
   );
   const longestUri = publicMintNfts.sort((a, b) => b.uri.length - a.uri.length);
-  const cm = (
+  await (
     await create(umi, {
       candyMachine: createSignerFromKeypair(umi, {
         publicKey: publicKey(candyMachine.publicKey),
@@ -300,16 +300,8 @@ export const insertInCandyMachine = async (
 
   umi.use(keypairIdentity(auth));
 
-  const candyMachineData = await fetchCandyMachine(
-    umi,
-    publicKey(candyMachine),
-  );
-
-  console.log(candyMachineData);
-
-  const chunkedConfigLines = chunk(configLines, 10);
+  const chunkedConfigLines = chunk(configLines, 8);
   let sumInserted = 0;
-
   for (const [index, cLines] of chunkedConfigLines.entries()) {
     try {
       addConfigLines(umi, {
@@ -321,7 +313,8 @@ export const insertInCandyMachine = async (
         })),
         index: sumInserted,
       }).sendAndConfirm(umi);
-      sumInserted += 10 * (index + 1);
+      sumInserted += 8;
+      console.log(sumInserted);
     } catch (error) {
       console.log(error);
     }

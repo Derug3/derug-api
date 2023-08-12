@@ -155,10 +155,6 @@ export class PublicRemintService {
       const publicMintConfig = await this.publicRemintRepo.getByDerugData(
         derugData,
       );
-      const expectedPda = PublicKey.findProgramAddressSync(
-        [Buffer.from('derug'), candyMachine.publicKey.toBuffer()],
-        derugProgram.programId,
-      );
 
       await setupCandyMachine(
         candyMachine,
