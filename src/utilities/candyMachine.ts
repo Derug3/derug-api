@@ -62,6 +62,7 @@ export async function setupCandyMachine(
       },
     ])
   ).map((nft) => nft.account.oldMint.toString());
+
   const publicMintNfts = publicMint.filter((pm) => !reminted.includes(pm.mint));
 
   const connection = new Connection(heliusRpc);
@@ -75,13 +76,16 @@ export async function setupCandyMachine(
     candyMachineAccInfo.data &&
     candyMachineAccInfo.data.length > 0
   ) {
-    console.log('Found existing candy machine');
-
-    await insertInCandyMachine(
-      publicMintNfts.map((pm) => ({ name: pm.name, uri: pm.uri })),
-      authority,
-      candyMachine.publicKey.toString(),
-    );
+    try {
+      await insertInCandyMachine(
+        publicMintNfts.map((pm) => ({ name: pm.newName, uri: pm.uri })),
+        authority,
+        candyMachine.publicKey.toString(),
+      );
+    } catch (error) {
+      console.log(error.message);
+      throw new BadRequestException(error.message);
+    }
 
     return;
   }
@@ -124,8 +128,8 @@ export async function setupCandyMachine(
         percentageShare: c.share,
         verified: false,
       })),
+      symbol: derugRequestAccount.newSymbol,
       itemsAvailable: publicMintNfts.length,
-      //TODO:Fix
       sellerFeeBasisPoints: percentAmount(
         derugRequestAccount.mintConfig.sellerFeeBps / 100,
         2,
@@ -147,11 +151,17 @@ export async function setupCandyMachine(
 
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await insertInCandyMachine(
-    publicMintNfts.map((pm) => ({ name: pm.name, uri: pm.uri })),
-    authority,
-    candyMachine.publicKey.toString(),
-  );
+  try {
+    await insertInCandyMachine(
+      publicMintNfts.map((pm) => ({ name: pm.newName, uri: pm.uri })),
+      authority,
+      candyMachine.publicKey.toString(),
+    );
+  } catch (error) {
+    console.log(error.message);
+
+    throw new BadRequestException(error.message);
+  }
 }
 
 export async function getCmGuards(
@@ -320,12 +330,3 @@ export const insertInCandyMachine = async (
     }
   }
 };
-
-function extractStringAfterLastSlash(inputString: string): string {
-  const lastSlashIndex = inputString.lastIndexOf('/');
-  if (lastSlashIndex === -1) {
-    return inputString;
-  } else {
-    return inputString.slice(lastSlashIndex + 1);
-  }
-}

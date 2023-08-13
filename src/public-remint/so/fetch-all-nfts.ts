@@ -5,10 +5,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js';
-import { remintConfigSeed } from 'src/utilities/constants';
 import { heliusRpc, RPC_CONNECTION } from 'src/utilities/solana/utilities';
-
-import { ShadowFile } from '@shadow-drive/sdk';
 import { derugProgram, metadataUploader } from 'src/utilities/utils';
 import { GetNftsByUpdateAuthority } from '../dto/candy-machine.dto';
 import { PublicRemint } from '../entity/public-remint.entity';
