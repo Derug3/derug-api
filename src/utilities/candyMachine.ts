@@ -305,24 +305,27 @@ export const insertInCandyMachine = async (
   });
 
   umi.use(keypairIdentity(auth));
-
-  const chunkedConfigLines = chunk(configLines, 8);
-  let sumInserted = 0;
-  for (const [index, cLines] of chunkedConfigLines.entries()) {
-    try {
-      addConfigLines(umi, {
-        authority: auth,
-        candyMachine: publicKey(candyMachine),
-        configLines: cLines.map((cl) => ({
-          name: cl.name,
-          uri: cl.uri,
-        })),
-        index: sumInserted,
-      }).sendAndConfirm(umi);
-      sumInserted += 8;
-      console.log(sumInserted);
-    } catch (error) {
-      console.log(error);
+  try {
+    const chunkedConfigLines = chunk(configLines, 8);
+    let sumInserted = 0;
+    for (const [index, cLines] of chunkedConfigLines.entries()) {
+      try {
+        addConfigLines(umi, {
+          authority: auth,
+          candyMachine: publicKey(candyMachine),
+          configLines: cLines.map((cl) => ({
+            name: cl.name,
+            uri: cl.uri,
+          })),
+          index: sumInserted,
+        }).sendAndConfirm(umi);
+        sumInserted += 8;
+        console.log(sumInserted);
+      } catch (error) {
+        console.log(error);
+      }
     }
+  } catch (error) {
+    console.log(error);
   }
 };
