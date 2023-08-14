@@ -306,7 +306,7 @@ export const insertInCandyMachine = async (
 
   umi.use(keypairIdentity(auth));
   try {
-    const chunkedConfigLines = chunk(configLines, 8);
+    const chunkedConfigLines = chunk(configLines, 5);
     let sumInserted = 0;
     for (const [index, cLines] of chunkedConfigLines.entries()) {
       try {
