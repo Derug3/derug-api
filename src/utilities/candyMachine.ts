@@ -319,7 +319,7 @@ export const insertInCandyMachine = async (
           })),
           index: sumInserted,
         }).sendAndConfirm(umi);
-        sumInserted += 8;
+        sumInserted += 5;
         console.log(sumInserted);
       } catch (error) {
         console.log(error);
