@@ -138,9 +138,7 @@ export async function setupCandyMachine(
       ruleSet: publicKey(metaplexAuthorizationRules),
       configLineSettings: {
         isSequential: false,
-        nameLength:
-          longestName[0].newName.length +
-          publicMintNfts.length.toString().length,
+        nameLength: nameLength,
         prefixName: namePrefix,
         prefixUri,
         uriLength: longestUri[0].uri.length,
@@ -245,9 +243,7 @@ export async function getCmGuards(
 }
 
 export function getConfigLineSettings(publicRemint: PublicRemint) {
-  const name = publicRemint.newName;
-
-  const namePrefix = publicRemint.newName.split(' ')[0];
+  const namePrefix = publicRemint.newName.split('#')[0];
 
   const uri = publicRemint.newUri.split('.json')[0];
 
@@ -255,7 +251,7 @@ export function getConfigLineSettings(publicRemint: PublicRemint) {
 
   return {
     namePrefix,
-    nameLength: namePrefix.length + 5,
+    nameLength: namePrefix.length + 10,
     prefixUri: extractedUri,
     uriLength: extractedUri.length + 10,
   };
