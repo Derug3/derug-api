@@ -124,6 +124,14 @@ export class TensorService implements OnModuleInit {
     return recentActivities(slug);
   }
 
+  getSlugs() {
+    return this.statsRepo
+      .createQueryBuilder('stats')
+      .orderBy('RANDOM()')
+      .take(50)
+      .getMany();
+  }
+
   async initCronData() {
     try {
       const cronData = await this.cronDataRepo.getCronData();

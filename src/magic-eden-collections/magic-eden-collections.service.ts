@@ -6,14 +6,11 @@ import {
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
-import { CollectionActivitiesRepository } from './repository/activities/activities.repository';
 import { CollectionRepository } from './repository/collection.reposity';
 import { GetByName } from './so/get-by-name';
 import { GetFlaggedCollections } from './so/get-flagged-collections';
 import { GetMagicEdenCron } from './so/get-magic-eden-cron';
 import { GetRandomCollections } from './so/get-random-collections';
-import { GetListings } from './so/get-collection-listings';
 import { GetSingleCollection } from './so/get-single-collection';
 import { GetAllCollections } from './so/get-all-collections';
 import { TensorService } from 'src/tensor/tensor.service';
@@ -42,7 +39,10 @@ export class MagicEdenCollectionsService implements OnModuleInit {
     this.getFlaggedCollections = new GetFlaggedCollections(
       collectionRepository,
     );
-    this.getRandomCollections = new GetRandomCollections(collectionRepository);
+    this.getRandomCollections = new GetRandomCollections(
+      collectionRepository,
+      tensorService,
+    );
     this.getByName = new GetByName(collectionRepository);
     this.getBySlug = new GetSingleCollection(
       collectionRepository,
@@ -114,5 +114,4 @@ export class MagicEdenCollectionsService implements OnModuleInit {
   getAllCollectionsData() {
     return this.collectionRepository.getAllCollectionsData();
   }
-  
 }

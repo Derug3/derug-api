@@ -52,11 +52,10 @@ export class PgRepository
 
     return resp;
   }
-  getRandomCollections(): Promise<Collection[]> {
+  getRandomCollections(symbols: string[]): Promise<Collection[]> {
     return this.createQueryBuilder('randomCollections')
       .select()
-      .orderBy('RANDOM()')
-      .limit(50)
+      .where('randomCollections.symbol IN (:...symbols)', { symbols })
       .getMany();
   }
   saveCollectionBatch(collections: Collection[]): void {
