@@ -119,6 +119,9 @@ export class PublicRemintService {
     try {
       transaction.partialSign(authorityPayer);
       const connection = new Connection(heliusRpc, 'finalized');
+      const txSim = await connection.simulateTransaction(transaction);
+      console.log(txSim.value.logs);
+
       const txSig = await connection.sendRawTransaction(
         transaction.serialize(),
       );
@@ -126,6 +129,8 @@ export class PublicRemintService {
       this.logger.log('Derug initialized');
       return { initialized: true };
     } catch (error) {
+      console.log(error);
+
       throw new BadRequestException(error.message);
     }
   }
