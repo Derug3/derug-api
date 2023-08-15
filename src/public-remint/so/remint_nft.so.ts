@@ -44,7 +44,7 @@ export class RemintNft {
             code: 400,
           };
         }
-        const connection = new Connection(heliusRpc);
+        const connection = new Connection(heliusRpc, 'confirmed');
 
         const auth = Keypair.fromSecretKey(decode(authority.secretKey));
 
@@ -53,9 +53,8 @@ export class RemintNft {
         const txSig = await connection.sendRawTransaction(
           transaction.serialize(),
         );
-        await connection.confirmTransaction(txSig);
 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         nft.dateReminted = new Date();
         nft.hasReminted = true;
