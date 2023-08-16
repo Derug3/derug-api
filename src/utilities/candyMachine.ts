@@ -71,6 +71,9 @@ export async function setupCandyMachine(
     candyMachine.publicKey,
   );
 
+  const derugDataAccount = await derugProgram.account.derugData.fetch(
+    new PublicKey(derugData),
+  );
   if (
     candyMachineAccInfo &&
     candyMachineAccInfo.data &&
@@ -81,6 +84,7 @@ export async function setupCandyMachine(
         publicMintNfts.map((pm) => ({ name: pm.newName, uri: pm.uri })),
         authority,
         candyMachine.publicKey.toString(),
+        derugDataAccount.totalReminted,
       );
     } catch (error) {
       console.log(error.message);
@@ -89,10 +93,6 @@ export async function setupCandyMachine(
 
     return;
   }
-
-  const derugDataAccount = await derugProgram.account.derugData.fetch(
-    new PublicKey(derugData),
-  );
 
   const derugRequestAccount = await derugProgram.account.derugRequest.fetch(
     derugDataAccount.winningRequest,
@@ -154,6 +154,7 @@ export async function setupCandyMachine(
       publicMintNfts.map((pm) => ({ name: pm.newName, uri: pm.uri })),
       authority,
       candyMachine.publicKey.toString(),
+      derugDataAccount.totalReminted,
     );
   } catch (error) {
     console.log(error.message);
@@ -298,6 +299,7 @@ export const insertInCandyMachine = async (
   configLines: { name: string; uri: string }[],
   authority: Keypair,
   candyMachine: string,
+  totalReminted: number,
 ) => {
   const auth = createSignerFromKeypair(umi, {
     publicKey: publicKey(authority.publicKey),
@@ -308,13 +310,14 @@ export const insertInCandyMachine = async (
   try {
     const chunkedConfigLines = chunk(configLines, 5);
     let sumInserted = 0;
+    let totalInserted = totalReminted;
     for (const [index, cLines] of chunkedConfigLines.entries()) {
       try {
         addConfigLines(umi, {
           authority: auth,
           candyMachine: publicKey(candyMachine),
           configLines: cLines.map((cl) => ({
-            name: cl.name,
+            name: cl.name.split(' ') + ` #${totalInserted}`,
             uri: cl.uri,
           })),
           index: sumInserted,
@@ -324,6 +327,7 @@ export const insertInCandyMachine = async (
       } catch (error) {
         console.log(error);
       }
+      totalInserted += 1;
     }
   } catch (error) {
     console.log(error);
