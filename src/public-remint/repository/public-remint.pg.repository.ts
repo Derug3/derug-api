@@ -8,7 +8,7 @@ export class PublicRemintRepository extends Repository<PublicRemint> {
     super(PublicRemint, dataSource.createEntityManager());
   }
   getByDerugData(derugData: string): Promise<PublicRemint[]> {
-    return this.find({ where: { derugData } });
+    return this.find({ where: { derugData, hasReminted: false } });
   }
   getNewNftData(mint: string): Promise<PublicRemint> {
     return this.findOne({ where: { mint: mint } });
