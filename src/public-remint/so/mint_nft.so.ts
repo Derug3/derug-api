@@ -48,6 +48,8 @@ export class MintNft {
 
       await connection.confirmTransaction(txSig);
 
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const nftMint = filteredInstructions[0].keys[7].pubkey;
       this.logger.log('Minted');
       return {
