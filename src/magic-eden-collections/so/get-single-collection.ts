@@ -11,7 +11,7 @@ export class GetSingleCollection {
   async execute(slug: string) {
     try {
       const collection = await this.collectionRepo.getBySlug(slug);
-      if (!collection.traits || collection.traits.length === 0) {
+      if (!collection?.traits || collection?.traits.length === 0) {
         this.logger.log('Found collection with no traits');
         await this.tensorService.storeStats(collection.symbol, collection);
         const updatedCollection = await this.collectionRepo.getBySlug(slug);
